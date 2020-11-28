@@ -20,31 +20,105 @@
 
 
 
+    <!-- crypto.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
+
+
+
+
     <!-- My scripts -->
 
     <script>
 
-        const queryString = window.location.search;
-        console.log(queryString);
-        // ?product=shirt&color=blue&newuser&size=m
+        function validURL(str) {
+            var pattern = new RegExp('^(https?:\\/\\/)?' + // protocol
+                '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
+                '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
+                '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
+                '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
+                '(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
+            return !!pattern.test(str);
+        }
 
-        const urlParams = new URLSearchParams(queryString);
+
+        window.onload = function () {
+            const queryString = window.location.search;
+            console.log(queryString);
+            // ?product=shirt&color=blue&newuser&size=m
+
+            const urlParams = new URLSearchParams(queryString);
 
 
-        const certifierPublicKey = urlParams.get('certifierPublicKey')
-        console.log(certifierPublicKey);
-        // shirt
+            const certifierPublicKey = urlParams.get('certifierPublicKey')
+            console.log(certifierPublicKey);
+            // shirt
 
-        const requesterPublicKey = urlParams.get('requesterPublicKey')
-        console.log(requesterPublicKey);
-        // blue
+            const requesterPublicKey = urlParams.get('requesterPublicKey')
+            console.log(requesterPublicKey);
+            // blue
 
-        const credentialsRequested = urlParams.get('credentialsRequested')
-        console.log(credentialsRequested);
+            const credentialsRequested = urlParams.get('credentialsRequested')
+            console.log(credentialsRequested);
 
-        const URLToProof = urlParams.get('URLToProof')
-        console.log(URLToProof);
-// empty string
+            const URLToProof = urlParams.get('URLToProof')
+            console.log(URLToProof);
+            // empty string };
+
+
+            document.getElementById("certifierPublicKey").value = certifierPublicKey
+            document.getElementById("requesterPublicKey").value = requesterPublicKey
+            document.getElementById("credentialsRequested").value = credentialsRequested.replace(/;/g, '\r\n')
+            document.getElementById("URLToProof").innerHTML = URLToProof
+            document.getElementById("URLToProof").href = URLToProof
+        }
+
+        function certifyCredentials() {
+
+
+
+
+            var lines = $('#credentialsRequested').val().split('\n');
+            var csvs = []
+            for (var i = 0; i < lines.length; i++) {
+
+                console.log(validURL(lines[i]))
+
+                if (!validURL(lines[i])) {
+                    console.log(lines[i])
+                    var hash = CryptoJS.SHA256(lines[i]);
+                    var credential = { data: lines[i], hash: hash.toString() }
+                    csvs.push(credential)
+                }
+
+                if (validURL(lines[i])) {
+                    console.log("file")
+
+                    fetch('https://upload.wikimedia.org/wikipedia/commons/7/77/Delete_key1.jpg')
+                        .then(res => res.blob()) // Gets the response and returns it as a blob
+                        .then(blob => {
+                            // Here's where you get access to the blob
+                            // And you can use it for whatever you want
+                            // Like calling ref().put(blob)
+
+                            console.log(blob)
+
+                            var hash = CryptoJS.SHA256(blob);
+                            var credential = { data: lines[i], hash: hash.toString() }
+                            csvs.push(credential)
+                        });
+
+                }
+
+
+            }
+
+            console.log(csvs)
+
+
+
+        }
+
+
 
 
 
@@ -98,7 +172,7 @@
 
                         <div class="form-group">
                             <label for="exampleFormControlTextarea1">Credentials to certify (one per line)</label>
-                            <textarea class="form-control" id="credentialsCertified" rows="3" placeholder="e.g. -
+                            <textarea class="form-control" id="credentialsRequested" rows="3" placeholder="e.g. -
 surname: lopez
 given names: clarisa ysabel
 date of birth: 03/30/1988
@@ -109,7 +183,7 @@ passport photo: https://jhrespicio.github.io/IIS/test.jpg" required></textarea>
                         <div class="form-group">
                             <label for="formGroupExampleInput">URL to ID proof</label>
 
-                            <p><a href="/verify" target="_blank">/verify?...</a></p>
+                            <p>- <a href="" target="_blank" id="URLToProof"></a></p>
 
                         </div>
 
@@ -153,7 +227,7 @@ passport photo: https://jhrespicio.github.io/IIS/test.jpg" required></textarea>
 
 
 
-
+                <div id="myImg"></div>
 
 
             </div>
