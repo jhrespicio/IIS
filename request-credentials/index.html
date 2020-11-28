@@ -60,6 +60,14 @@
             const querystring = encodeQueryData(data);
 
             console.log(querystring)
+
+            var requestURL = "/certify-credentials?" + querystring
+            console.log(requestURL)
+
+            document.getElementById("certifyLink").innerHTML = '<a href="' + requestURL + '" class="alert-link" target="_blank" >' + requestURL + '</a>'
+
+
+
         }
 
 
@@ -126,13 +134,60 @@ passport photo: https://jhrespicio.github.io/IIS/test.jpg" required></textarea>
                         </div>
 
 
-                        <input type="button" class="btn btn-primary" onclick="generateRequestURL()" value="Submit">
+                        <input type="button" class="btn btn-primary" onclick="generateRequestURL()" value="Submit"
+                            data-toggle="modal" data-target="#exampleModal">
 
 
                         <!-- <button onclick="generateRequestURL()" type="submit" class="btn btn-primary">Submit</button> -->
                     </form>
 
+
+
+
+
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">Success</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div id="generateURLSuccess" class="alert alert-success mt-4" role="alert">
+
+                                        <p>Share the following link to the certifier:</p>
+
+                                        <p id="certifyLink" class="text-break">
+                                            https://jhrespicio.github.io/IIS/certify?...
+                                        </p>
+
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
                 </div>
+
+
+
+
+
+
+
+
+
 
 
 
