@@ -33,57 +33,74 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
 
+
+
+
     <!-- My scripts -->
 
     <script>
 
 
-        const hashBlob = blob => {
-            var a = new FileReader();
-            a.readAsBinaryString(blob);
-            a.onloadend = function () {
-                var hash = CryptoJS.SHA256(CryptoJS.enc.Latin1.parse(a.result));
-                return hash
-            };
+
+
+
+
+        function deleteRequest() {
+            document.getElementById("credToCertify").value = ""
+
+            var credentialsRequested = document.getElementById("credentialsRequested").value
+
+            console.log(credentialsRequested)
+
+
+            var creds = credentialsRequested.split("\n")
+
+            console.log(creds)
+
+
+
+            var firstCred = creds[0]
+
+            console.log(firstCred)
+
+            document.getElementById("credToCertify").value = firstCred
+
+            creds.shift();
+
+            console.log(creds)
+
+
+
+
+
+            var credentialsRequested = creds.join(";")
+
+
+            document.getElementById("credentialsRequested").value = credentialsRequested.replace(/;/g, '\r\n')
+
+
         }
 
 
 
 
-        const hashLine = line => {
 
 
 
-            var result = URI.withinString(line, function (url) {
 
-                // certify
 
-                fetch(url)
-                    .then(res => res.blob()) // Gets the response and returns it as a blob
-                    .then(blob => {
-                        // Here's where you get access to the blob
-                        // And you can use it for whatever you want
-                        // Like calling ref().put(blob)
 
-                        console.log(blob)
-
-                        var hash = CryptoJS.SHA256(blob);
-
-                        return hash
-
-                    })
-
-                    .catch(error => {
-
-                        return error
-                    })
-                    ;
+        function base64ToHex(str) {
+            const raw = atob(str);
+            let result = '';
+            for (let i = 0; i < raw.length; i++) {
+                const hex = raw.charCodeAt(i).toString(16);
+                result += (hex.length === 2 ? hex : '0' + hex);
             }
-
-
-            )
-
+            return result.toUpperCase();
         }
+
+
 
 
 
@@ -103,13 +120,30 @@
             console.log(requesterPublicKey);
             // blue
 
-            const credentialsRequested = urlParams.get('credentialsRequested')
+            var credentialsRequested = urlParams.get('credentialsRequested')
             console.log(credentialsRequested);
 
             const URLToProof = urlParams.get('URLToProof')
             console.log(URLToProof);
             // empty string };
 
+
+            var creds = credentialsRequested.split(";")
+            console.log(creds)
+
+            var firstCred = creds[0]
+
+            console.log(firstCred)
+
+
+            document.getElementById("credToCertify").value = firstCred
+
+            creds.shift();
+
+            console.log(creds)
+
+
+            var credentialsRequested = creds.join(";")
 
             document.getElementById("certifierPublicKey").value = certifierPublicKey
             document.getElementById("requesterPublicKey").value = requesterPublicKey
@@ -120,12 +154,27 @@
 
 
 
-        const getNumFruit = fruit => {
+        const getNumFruit = hashString => {
 
             var server = new StellarSdk.Server("https://horizon-testnet.stellar.org");
-            var sourceKeys = StellarSdk.Keypair.fromSecret(
-                document.getElementById("certifierSecretKey").value,
-            );
+
+            try {
+                var sourceKeys = StellarSdk.Keypair.fromSecret(
+                    document.getElementById("certifierSecretKey").value,
+                );
+            } catch (e) {
+                console.error(e)
+
+                document.getElementById("certifyButton").disabled = false
+
+                document.getElementById("deleteRequestId").disabled = false
+
+                document.getElementById("certifySpinner").classList.add("d-none")
+
+                return $('#exampleModal').modal('show')
+            }
+
+
             var destinationId = document.getElementById("requesterPublicKey").value;
             // Transaction will hold a built transaction we can resubmit if the result is unknown.
             var transaction;
@@ -166,7 +215,7 @@
                         )
                         // A memo allows you to add your own metadata to a transaction. It's
                         // optional and does not affect how Stellar treats the transaction.
-                        .addMemo(StellarSdk.Memo.hash(fruit))
+                        .addMemo(StellarSdk.Memo.hash(hashString))
                         // Wait a maximum of three minutes for the transaction
                         .setTimeout(180)
                         .build();
@@ -176,155 +225,208 @@
                     return server.submitTransaction(transaction);
                 })
                 .then(function (result) {
-                    // console.log("Success! Results:", result);
+                    console.log("Success! Results:", result);
 
-                    // mine
+                    console.log("Memo:", result.memo);
 
 
-                    return result
+                    console.log(base64ToHex(result.memo).toLowerCase());
+
+
+                    deleteRequest()
+
+                    document.getElementById("certifyButton").disabled = false
+
+                    document.getElementById("deleteRequestId").disabled = false
+
+                    document.getElementById("certifySpinner").classList.add("d-none")
+
+
+                    var credSource = result.source_account
+                    var credDate = result.created_at
+                    var tranHash = result.hash
+
+                    URI.withinString(certProof, function (url) {
+                        certProof = '<a href="' + url + '" class="alert-link" target="_blank" >' + url + '</a>'
+                    })
+
+                    var credLineA, credLineAUrl;
+                    URI.withinString(credLine, function (url) {
+
+                        credLineA = '<a href="' + url + '" class="alert-link" target="_blank" >' + url + '</a>'
+
+                        credLineAUrl = url
+                    })
+
+                    console.log(credLine, credLineA, credLineAUrl)
+
+
+                    credLine = credLine.replaceAll(credLineAUrl, credLineA)
+
+                    console.log(credLine)
+
+
+
+
+
+
+
+
+
+
+                    var credEntry =
+
+                        `<hr><span class="badge badge-secondary mb-2">New credential</span>
+                            <h4 id="credLineId" class=""><span class="text-break">${credLine}</span></h4>
+
+                            <p><strong>Credential owner: </strong><span class="text-break">${destinationId}</span></p>
+
+                            
+                            <p><strong>Credential certifier: </strong><span class="text-break">${credSource}</p>
+                            <p><strong>Certifier's proof: </strong><span class="text-break">${certProof}</span></p>
+                            <p><strong>Date certified: </strong>${credDate}</p>
+                            <p><strong>Ledger hash: </strong><span class="text-break">${tranHash}</span></p>
+                        `
+
+
+
+
+
+                    console.log(credEntry)
+
+
+                    $("#credsList").append(credEntry);
+
+                    document.getElementById("successAlert").classList.remove("d-none")
+
+
+
+
+
+
 
                 })
                 .catch(function (error) {
-                    // console.error("Something went wrong!", error);
+                    console.error("Something went wrong!", error);
                     // If the result is unknown (no response body, timeout etc.) we simply resubmit
                     // already built transaction:
                     // server.submitTransaction(transaction);
 
+                    document.getElementById("certifyButton").disabled = false
 
-                    // mine
-                    // console.log(error.response)
+                    document.getElementById("deleteRequestId").disabled = false
 
-                    return error
+                    document.getElementById("certifySpinner").classList.add("d-none")
+
+                    return $('#exampleModal').modal('show')
+
 
                 });
         }
 
 
-
-
-        function processHashes(hashes) {
-            // certify
-
-
-            var fruitsToGet = hashes
-
-
-            const forLoop = async _ => {
-                console.log('Start')
-
-                document.getElementById("certifyButton").disabled = true
-                document.getElementById("certifySpinner").classList.remove("d-none")
-
-                for (let index = 0; index < fruitsToGet.length; index++) {
-                    const fruit = fruitsToGet[index]
-                    const numFruit = await getNumFruit(fruit)
-                    console.log(numFruit)
-                }
-
-                console.log('End')
-
-                document.getElementById("certifyButton").disabled = false
-                document.getElementById("certifySpinner").classList.add("d-none")
-            }
-
-
-            forLoop()
-        }
+        var credLine, certProof;
 
 
         async function certifyCredentials() {
 
 
+            document.getElementById("certifyButton").disabled = true
+
+            document.getElementById("deleteRequestId").disabled = true
 
 
-            var lines = $('#credentialsRequested').val().split('\n');
-
-            var csvs = []
+            document.getElementById("certifySpinner").classList.remove("d-none")
 
 
+            var line = document.getElementById("credToCertify").value
 
-            const forCheck = async _ => {
-                console.log('Start check')
+            credLine = line
 
-                for (let index = 0; index < lines.length; index++) {
-                    const line = lines[index]
-
+            certProof = document.getElementById("URLToOwnerProof").value
 
 
+            if (!(new RegExp("([a-zA-Z0-9]+://)?([a-zA-Z0-9_]+:[a-zA-Z0-9_]+@)?([a-zA-Z0-9.-]+\\.[A-Za-z]{2,4})(:[0-9]+)?(/.*)?").test(line))) {
+                console.log(line)
+                var hash = CryptoJS.SHA256(line);
+                var lineHash = hash
 
+                console.log(lineHash)
 
+                var hashString = lineHash.toString()
 
-                    if (!(new RegExp("([a-zA-Z0-9]+://)?([a-zA-Z0-9_]+:[a-zA-Z0-9_]+@)?([a-zA-Z0-9.-]+\\.[A-Za-z]{2,4})(:[0-9]+)?(/.*)?").test(line))) {
-                        console.log(line)
-                        var hash = CryptoJS.SHA256(line);
-                        var lineHash = hash
+                console.log(hashString)
 
-                        console.log(lineHash)
-                    }
-
-                    if (new RegExp("([a-zA-Z0-9]+://)?([a-zA-Z0-9_]+:[a-zA-Z0-9_]+@)?([a-zA-Z0-9.-]+\\.[A-Za-z]{2,4})(:[0-9]+)?(/.*)?").test(line)) {
-                        console.log("file")
-
-                        // var lineHash = await hashLine(line)
-
-
-
-                        var result = URI.withinString(line, function (url) {
-
-                            return url
-
-                        })
-
-                        console.log(result)
-
-                        try {
-                            const config = { responseType: 'blob' };
-                            const response = await axios.get(result, config
-                            );
-
-                            console.log(response)
-                            var blob = response.data
-
-                            const blobHash = await hashBlob(blob);
-
-                            var hash = blobHash
-
-                            console.log(hash)
-                            var lineHash = hash
-                            console.log(lineHash)
-                            console.log(lineHash.toString())
-
-
-
-
-
-
-                        } catch (error) {
-                            console.error(error);
-                        }
-
-                    }
-
-
-                    var credential = { data: lines[index], hash: lineHash.toString() }
-                    csvs.push(credential)
-                }
-
-                console.log('End Check')
-
-                console.log(csvs)
-
-                var hashes = []
-
-                for (var i = 0; i < csvs.length; i++) {
-                    hashes.push(csvs[i].hash)
-                }
-                console.log(hashes)
-
-
-                processHashes(hashes)
+                getNumFruit(hashString)
             }
-            forCheck()
+
+            if (new RegExp("([a-zA-Z0-9]+://)?([a-zA-Z0-9_]+:[a-zA-Z0-9_]+@)?([a-zA-Z0-9.-]+\\.[A-Za-z]{2,4})(:[0-9]+)?(/.*)?").test(line)) {
+                console.log("file")
+
+
+
+                var oneURL
+                var result = URI.withinString(line, function (url) {
+                    console.log(url)
+                    oneURL = url
+                    return url
+                })
+
+
+                console.log(oneURL)
+
+                try {
+                    const config = { responseType: 'blob' };
+                    const response = await axios.get(oneURL, config
+                    );
+
+                    console.log(response)
+                    var blob = response.data
+
+
+
+                    var a = new FileReader();
+                    a.readAsBinaryString(blob);
+                    a.onloadend = function () {
+                        var hash = CryptoJS.SHA256(CryptoJS.enc.Latin1.parse(a.result));
+
+
+                        console.log(hash)
+                        var lineHash = hash
+                        console.log(lineHash)
+                        console.log(lineHash.toString())
+
+                        var hashString = lineHash.toString()
+
+                        console.log(hashString)
+
+                        getNumFruit(hashString)
+                    };
+
+
+
+
+
+                } catch (error) {
+                    console.error(error);
+
+
+                    document.getElementById("certifyButton").disabled = false
+
+                    document.getElementById("deleteRequestId").disabled = false
+
+
+                    document.getElementById("certifySpinner").classList.add("d-none")
+
+                    return $('#exampleModal').modal('show')
+                }
+
+            }
+
+
+
+
+
 
 
 
@@ -377,28 +479,21 @@
                         </div>
 
                         <div class="form-group">
+                            <label for="exampleInputPassword1">Certifier's secret key</label>
+                            <input type="password" class="form-control border-warning" id="certifierSecretKey">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="formGroupExampleInput">URL to certifier proof</label>
+                            <input type="text" class="form-control border-secondary" id="URLToOwnerProof"
+                                placeholder="e.g., https://twitter.com/nntaleb/status/1332836535117418496">
+                        </div>
+
+                        <div class="form-group">
                             <label for="formGroupExampleInput">Requester's public key</label>
                             <input type="text" class="form-control" id="requesterPublicKey"
                                 placeholder="e.g., GAZNPIM76UDDUKZEO5KBNOHKX5FOMCOKAZ3L5QF6VTD36UOR6EFAY7CH" required>
                         </div>
-
-
-
-                        <div class="form-group">
-                            <label for="exampleFormControlTextarea1">Credentials to certify (one per line)</label>
-                            <textarea class="form-control" id="credentialsRequested" rows="3" placeholder="e.g. -
-surname: lopez
-given names: clarisa ysabel
-date of birth: 03/30/1988
-passport photo: https://jhrespicio.github.io/IIS/test.jpg" required></textarea>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="formGroupExampleInput">Surne</label>
-                            <input type="text" class="form-control" id="requesterPublicKey"
-                                placeholder="e.g., GAZNPIM76UDDUKZEO5KBNOHKX5FOMCOKAZ3L5QF6VTD36UOR6EFAY7CH" required>
-                        </div>
-
 
                         <div class="form-group">
                             <label for="formGroupExampleInput">URL to ID proof</label>
@@ -407,17 +502,30 @@ passport photo: https://jhrespicio.github.io/IIS/test.jpg" required></textarea>
 
                         </div>
 
-
                         <div class="form-group">
-                            <label for="exampleInputPassword1">Certifier's secret key</label>
-                            <input type="password" class="form-control border-warning" id="certifierSecretKey">
+                            <label for="exampleFormControlTextarea1">Credentials to certify (one per line)</label>
+                            <textarea class="form-control " readonly id="credentialsRequested" rows="3" placeholder=""
+                                required></textarea>
                         </div>
 
 
+
+
+
+
+
+
+
+
+                        <div class="form-group">
+                            <label for="formGroupExampleInput">Certify credentials one by one</label>
+                            <input type="text" class="form-control border-primary" id="credToCertify">
+                        </div>
                         <input id="certifyButton" type="button" class="btn btn-primary border-warning"
                             onclick="certifyCredentials()" value="Certify">
 
-
+                        <button type="button" class="btn btn-danger" id="deleteRequestId"
+                            onclick="deleteRequest()">Delete</button>
                         <small class="form-text text-muted">You won't be able to undo this.</small>
                         <div id="certifySpinner" class="spinner-border mt-2  d-none" role="status">
                             <span class="sr-only">Loading...</span>
@@ -430,6 +538,22 @@ passport photo: https://jhrespicio.github.io/IIS/test.jpg" required></textarea>
 
 
 
+
+
+                    <div id="successAlert" class="alert alert-success mt-4 d-none" role="alert">
+                        <h4 class="alert-heading">Success!</h4>
+                        <div id="credsList">
+
+
+
+
+                        </div>
+
+
+                        <hr>
+                        <p class="mb-0">Whenever you need to, be sure to use margin utilities to keep things nice and
+                            tidy.</p>
+                    </div>
 
 
 
@@ -451,7 +575,7 @@ passport photo: https://jhrespicio.github.io/IIS/test.jpg" required></textarea>
 
 
 
-                <div id="myImg"></div>
+
 
 
             </div>
@@ -461,7 +585,32 @@ passport photo: https://jhrespicio.github.io/IIS/test.jpg" required></textarea>
 
 
 
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Error</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="" class="alert alert-danger mt-3" role="alert">
 
+                        Something went wrong.
+
+
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
 
 
     <!-- Optional JavaScript; choose one of the two! -->
