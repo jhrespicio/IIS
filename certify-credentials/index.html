@@ -24,21 +24,67 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
 
 
+    <!-- URI.js -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/URI.js/1.19.2/URI.min.js"></script>
+
+    <!-- axios -->
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
 
     <!-- My scripts -->
 
     <script>
 
-        function validURL(str) {
-            var pattern = new RegExp('^(https?:\\/\\/)?' + // protocol
-                '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
-                '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
-                '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
-                '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
-                '(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
-            return !!pattern.test(str);
+
+        const hashBlob = blob => {
+            var a = new FileReader();
+            a.readAsBinaryString(blob);
+            a.onloadend = function () {
+                var hash = CryptoJS.SHA256(CryptoJS.enc.Latin1.parse(a.result));
+                return hash
+            };
         }
+
+
+
+
+        const hashLine = line => {
+
+
+
+            var result = URI.withinString(line, function (url) {
+
+                // certify
+
+                fetch(url)
+                    .then(res => res.blob()) // Gets the response and returns it as a blob
+                    .then(blob => {
+                        // Here's where you get access to the blob
+                        // And you can use it for whatever you want
+                        // Like calling ref().put(blob)
+
+                        console.log(blob)
+
+                        var hash = CryptoJS.SHA256(blob);
+
+                        return hash
+
+                    })
+
+                    .catch(error => {
+
+                        return error
+                    })
+                    ;
+            }
+
+
+            )
+
+        }
+
 
 
         window.onload = function () {
@@ -72,47 +118,215 @@
             document.getElementById("URLToProof").href = URLToProof
         }
 
-        function certifyCredentials() {
+
+
+        const getNumFruit = fruit => {
+
+            var server = new StellarSdk.Server("https://horizon-testnet.stellar.org");
+            var sourceKeys = StellarSdk.Keypair.fromSecret(
+                document.getElementById("certifierSecretKey").value,
+            );
+            var destinationId = document.getElementById("requesterPublicKey").value;
+            // Transaction will hold a built transaction we can resubmit if the result is unknown.
+            var transaction;
+
+            // First, check to make sure that the destination account exists.
+            // You could skip this, but if the account does not exist, you will be charged
+            // the transaction fee when the transaction fails.
+            return server
+                .loadAccount(destinationId)
+                // If the account is not found, surface a nicer error message for logging.
+                .catch(function (error) {
+                    if (error instanceof StellarSdk.NotFoundError) {
+                        throw new Error("The destination account does not exist!");
+                    } else return error;
+
+
+
+
+                })
+                // If there was no error, load up-to-date information on your account.
+                .then(function () {
+                    return server.loadAccount(sourceKeys.publicKey());
+                })
+                .then(function (sourceAccount) {
+                    // Start building the transaction.
+                    transaction = new StellarSdk.TransactionBuilder(sourceAccount, {
+                        fee: StellarSdk.BASE_FEE,
+                        networkPassphrase: StellarSdk.Networks.TESTNET,
+                    })
+                        .addOperation(
+                            StellarSdk.Operation.payment({
+                                destination: destinationId,
+                                // Because Stellar allows transaction in many currencies, you must
+                                // specify the asset type. The special "native" asset represents Lumens.
+                                asset: StellarSdk.Asset.native(),
+                                amount: "0.0000001",
+                            }),
+                        )
+                        // A memo allows you to add your own metadata to a transaction. It's
+                        // optional and does not affect how Stellar treats the transaction.
+                        .addMemo(StellarSdk.Memo.hash(fruit))
+                        // Wait a maximum of three minutes for the transaction
+                        .setTimeout(180)
+                        .build();
+                    // Sign the transaction to prove you are actually the person sending it.
+                    transaction.sign(sourceKeys);
+                    // And finally, send it off to Stellar!
+                    return server.submitTransaction(transaction);
+                })
+                .then(function (result) {
+                    // console.log("Success! Results:", result);
+
+                    // mine
+
+
+                    return result
+
+                })
+                .catch(function (error) {
+                    // console.error("Something went wrong!", error);
+                    // If the result is unknown (no response body, timeout etc.) we simply resubmit
+                    // already built transaction:
+                    // server.submitTransaction(transaction);
+
+
+                    // mine
+                    // console.log(error.response)
+
+                    return error
+
+                });
+        }
+
+
+
+
+        function processHashes(hashes) {
+            // certify
+
+
+            var fruitsToGet = hashes
+
+
+            const forLoop = async _ => {
+                console.log('Start')
+
+                document.getElementById("certifyButton").disabled = true
+                document.getElementById("certifySpinner").classList.remove("d-none")
+
+                for (let index = 0; index < fruitsToGet.length; index++) {
+                    const fruit = fruitsToGet[index]
+                    const numFruit = await getNumFruit(fruit)
+                    console.log(numFruit)
+                }
+
+                console.log('End')
+
+                document.getElementById("certifyButton").disabled = false
+                document.getElementById("certifySpinner").classList.add("d-none")
+            }
+
+
+            forLoop()
+        }
+
+
+        async function certifyCredentials() {
 
 
 
 
             var lines = $('#credentialsRequested').val().split('\n');
+
             var csvs = []
-            for (var i = 0; i < lines.length; i++) {
 
-                console.log(validURL(lines[i]))
 
-                if (!validURL(lines[i])) {
-                    console.log(lines[i])
-                    var hash = CryptoJS.SHA256(lines[i]);
-                    var credential = { data: lines[i], hash: hash.toString() }
+
+            const forCheck = async _ => {
+                console.log('Start check')
+
+                for (let index = 0; index < lines.length; index++) {
+                    const line = lines[index]
+
+
+
+
+
+
+                    if (!(new RegExp("([a-zA-Z0-9]+://)?([a-zA-Z0-9_]+:[a-zA-Z0-9_]+@)?([a-zA-Z0-9.-]+\\.[A-Za-z]{2,4})(:[0-9]+)?(/.*)?").test(line))) {
+                        console.log(line)
+                        var hash = CryptoJS.SHA256(line);
+                        var lineHash = hash
+
+                        console.log(lineHash)
+                    }
+
+                    if (new RegExp("([a-zA-Z0-9]+://)?([a-zA-Z0-9_]+:[a-zA-Z0-9_]+@)?([a-zA-Z0-9.-]+\\.[A-Za-z]{2,4})(:[0-9]+)?(/.*)?").test(line)) {
+                        console.log("file")
+
+                        // var lineHash = await hashLine(line)
+
+
+
+                        var result = URI.withinString(line, function (url) {
+
+                            return url
+
+                        })
+
+                        console.log(result)
+
+                        try {
+                            const config = { responseType: 'blob' };
+                            const response = await axios.get(result, config
+                            );
+
+                            console.log(response)
+                            var blob = response.data
+
+                            const blobHash = await hashBlob(blob);
+
+                            var hash = blobHash
+
+                            console.log(hash)
+                            var lineHash = hash
+                            console.log(lineHash)
+                            console.log(lineHash.toString())
+
+
+
+
+
+
+                        } catch (error) {
+                            console.error(error);
+                        }
+
+                    }
+
+
+                    var credential = { data: lines[index], hash: lineHash.toString() }
                     csvs.push(credential)
                 }
 
-                if (validURL(lines[i])) {
-                    console.log("file")
+                console.log('End Check')
 
-                    fetch('https://upload.wikimedia.org/wikipedia/commons/7/77/Delete_key1.jpg')
-                        .then(res => res.blob()) // Gets the response and returns it as a blob
-                        .then(blob => {
-                            // Here's where you get access to the blob
-                            // And you can use it for whatever you want
-                            // Like calling ref().put(blob)
+                console.log(csvs)
 
-                            console.log(blob)
+                var hashes = []
 
-                            var hash = CryptoJS.SHA256(blob);
-                            var credential = { data: lines[i], hash: hash.toString() }
-                            csvs.push(credential)
-                        });
-
+                for (var i = 0; i < csvs.length; i++) {
+                    hashes.push(csvs[i].hash)
                 }
+                console.log(hashes)
 
 
+                processHashes(hashes)
             }
+            forCheck()
 
-            console.log(csvs)
+
 
 
 
@@ -179,6 +393,12 @@ date of birth: 03/30/1988
 passport photo: https://jhrespicio.github.io/IIS/test.jpg" required></textarea>
                         </div>
 
+                        <div class="form-group">
+                            <label for="formGroupExampleInput">Surne</label>
+                            <input type="text" class="form-control" id="requesterPublicKey"
+                                placeholder="e.g., GAZNPIM76UDDUKZEO5KBNOHKX5FOMCOKAZ3L5QF6VTD36UOR6EFAY7CH" required>
+                        </div>
+
 
                         <div class="form-group">
                             <label for="formGroupExampleInput">URL to ID proof</label>
@@ -190,14 +410,18 @@ passport photo: https://jhrespicio.github.io/IIS/test.jpg" required></textarea>
 
                         <div class="form-group">
                             <label for="exampleInputPassword1">Certifier's secret key</label>
-                            <input type="password" class="form-control border-warning" id="exampleInputPassword1">
+                            <input type="password" class="form-control border-warning" id="certifierSecretKey">
                         </div>
 
 
-                        <input type="button" class="btn btn-primary border-warning" onclick="certifyCredentials()"
-                            value="Certify">
+                        <input id="certifyButton" type="button" class="btn btn-primary border-warning"
+                            onclick="certifyCredentials()" value="Certify">
+
 
                         <small class="form-text text-muted">You won't be able to undo this.</small>
+                        <div id="certifySpinner" class="spinner-border mt-2  d-none" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
 
 
 
