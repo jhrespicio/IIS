@@ -435,7 +435,7 @@
 
                             };
 
-
+                            console.log(verified, "verified-1")
 
                             var certProofS, credLineS, resultMemoS, destinationIdS, resultSourceAccountS, resultCreatedAtS, resultHashS
                             certProofS = certProofA
@@ -457,7 +457,9 @@
                             resultSourceAccountS = transOps.data._embedded.records[0].from
                             resultCreatedAtS = transOps.data._embedded.records[0].created_at
                             resultHashS = forTrans
-                            // verified = verified
+                            verified = verified
+
+                            console.log(verified, "verified-2")
 
                             writeSuccess(certProofS, credLineS, resultMemoS, destinationIdS, resultSourceAccountS, resultCreatedAtS, resultHashS, verified)
 
