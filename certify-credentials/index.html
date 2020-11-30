@@ -45,6 +45,17 @@
 
 
 
+
+
+
+
+
+
+        var myArray = [];
+
+
+
+
         function deleteRequest() {
             document.getElementById("credToCertify").value = ""
 
@@ -123,7 +134,7 @@
             var credentialsRequested = urlParams.get('credentialsRequested')
             console.log(credentialsRequested);
 
-            const URLToProof = urlParams.get('URLToProof')
+            var URLToProof = urlParams.get('URLToProof')
             console.log(URLToProof);
             // empty string };
 
@@ -148,9 +159,16 @@
             document.getElementById("certifierPublicKey").value = certifierPublicKey
             document.getElementById("requesterPublicKey").value = requesterPublicKey
             document.getElementById("credentialsRequested").value = credentialsRequested.replace(/;/g, '\r\n')
+
+
+            URI.withinString(URLToProof, function (url) {
+                URLToProof = '<a href="' + url + '" class="" target="_blank" >' + url + '</a>'
+            })
+
             document.getElementById("URLToProof").innerHTML = URLToProof
-            document.getElementById("URLToProof").href = URLToProof
+
         }
+
 
 
 
@@ -246,8 +264,12 @@
                     var credDate = result.created_at
                     var tranHash = result.hash
 
+                    var certProofPlain;
+
                     URI.withinString(certProof, function (url) {
                         certProof = '<a href="' + url + '" class="alert-link" target="_blank" >' + url + '</a>'
+
+                        certProofPlain = url
                     })
 
                     var credLineA, credLineAUrl;
@@ -261,14 +283,14 @@
                     console.log(credLine, credLineA, credLineAUrl)
 
 
-                    credLine = credLine.replaceAll(credLineAUrl, credLineA)
+                    var credLineAd = credLine.replaceAll(credLineAUrl, credLineA)
 
                     console.log(credLine)
 
 
 
 
-
+                    var credHash = base64ToHex(result.memo).toLowerCase()
 
 
 
@@ -276,16 +298,17 @@
 
                     var credEntry =
 
-                        `<hr><span class="badge badge-secondary mb-2">New credential</span>
-                            <h4 id="credLineId" class=""><span class="text-break">${credLine}</span></h4>
+                        `<hr><span class="badge badge-secondary mb-2">Credential</span>
+                            <h5 id="credLineId" class=""><span class="text-break">${credLineAd}</span></h5>
+                            <p><strong>Hash: </strong><span class="text-break text-info">${credHash}</span></p>
 
-                            <p><strong>Credential owner: </strong><span class="text-break">${destinationId}</span></p>
+                            <p><strong>Owner: </strong><span class="text-break text-primary">${destinationId}</span></p>
 
                             
-                            <p><strong>Credential certifier: </strong><span class="text-break">${credSource}</p>
-                            <p><strong>Certifier's proof: </strong><span class="text-break">${certProof}</span></p>
+                            <p><strong>Certifier: </strong><span class="text-break text-danger">${credSource}</p>
+                            <p><strong>Certifier's ID proof: </strong><span class="text-break">${certProof}</span></p>
                             <p><strong>Date certified: </strong>${credDate}</p>
-                            <p><strong>Ledger hash: </strong><span class="text-break">${tranHash}</span></p>
+                            <p><strong>Transaction hash: </strong><span class="text-break">${tranHash}</span></p>
                         `
 
 
@@ -301,7 +324,24 @@
 
 
 
+                    var credData = { "credLine": credLine, "certProof": certProof, "tranHash": tranHash };
+                    console.log(credData)
+                    myArray.push(credData)
+                    var arrStr = encodeURIComponent(JSON.stringify(myArray));
+                    $('#credentialsLink').attr({ href: '/verify-credentials/?array=' + arrStr });
 
+                    console.log(arrStr)
+
+                    document.getElementById("credentialsLink").innerHTML = '/verify-credentials/?array=' + arrStr
+
+
+
+
+
+                    var credsLinkUrl = '/verify-credentials/?array=' + arrStr
+                    document.getElementById("credsLinkModal").innerHTML =
+
+                        '<a href="' + credsLinkUrl + '" class="alert-link" target="_blank" >' + credsLinkUrl + '</a>'
 
 
 
@@ -484,7 +524,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="formGroupExampleInput">URL to certifier proof</label>
+                            <label for="formGroupExampleInput">URL to certifier ID proof</label>
                             <input type="text" class="form-control border-secondary" id="URLToOwnerProof"
                                 placeholder="e.g., https://twitter.com/nntaleb/status/1332836535117418496">
                         </div>
@@ -496,14 +536,14 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="formGroupExampleInput">URL to ID proof</label>
+                            <label for="formGroupExampleInput">URL to requester ID proof</label>
 
-                            <p>- <a href="" target="_blank" id="URLToProof"></a></p>
+                            <p>- <span id="URLToProof" class="text-break"></span></p>
 
                         </div>
 
                         <div class="form-group">
-                            <label for="exampleFormControlTextarea1">Credentials to certify (one per line)</label>
+                            <label for="exampleFormControlTextarea1">Credentials requested</label>
                             <textarea class="form-control " readonly id="credentialsRequested" rows="3" placeholder=""
                                 required></textarea>
                         </div>
@@ -542,6 +582,10 @@
 
                     <div id="successAlert" class="alert alert-success mt-4 d-none" role="alert">
                         <h4 class="alert-heading">Success!</h4>
+
+                        <a class="btn btn-success mt-2" href="#credsLink" role="button"
+                            onclick="$('#linkModal').modal('show')">Get credentials link</a>
+
                         <div id="credsList">
 
 
@@ -551,8 +595,10 @@
 
 
                         <hr>
-                        <p class="mb-0">Whenever you need to, be sure to use margin utilities to keep things nice and
-                            tidy.</p>
+                        <a id="credsLink"></a>
+                        <h4 class="text-success">Credentials link</h4>
+                        <p class="mb-0"><a id="credentialsLink" class="alert-link text-break" target="_blank"
+                                href=""></a></p>
                     </div>
 
 
@@ -599,6 +645,37 @@
                     <div id="" class="alert alert-danger mt-3" role="alert">
 
                         Something went wrong.
+
+
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Link modal -->
+
+
+    <div class="modal fade" id="linkModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Credentials link</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="credsLinkModal" class="alert alert-success mt-3 text-break" role="alert">
+
+
 
 
 
