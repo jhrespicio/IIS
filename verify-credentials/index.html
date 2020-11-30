@@ -32,7 +32,9 @@
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
+    <!-- QR code generator -->
 
+    <script src="https://cdn.jsdelivr.net/npm/davidshimjs-qrcodejs@0.0.2/qrcode.min.js"></script>
 
 
 
@@ -95,7 +97,9 @@
 
                         '<a href="' + credsLinkUrl + '" class="alert-link" target="_blank" >' + credsLinkUrl + '</a>'
 
+                        + '<div id="qrcode" class="mb-2 mt-4 text-center "></div>'
 
+                    new QRCode(document.getElementById("qrcode"), credsLinkUrl);
 
 
 
@@ -148,7 +152,9 @@
                     document.getElementById("credsLinkModal").innerHTML =
 
                         '<a href="' + credsLinkUrl + '" class="alert-link" target="_blank" >' + credsLinkUrl + '</a>'
+                        + '<div id="qrcode" class="mb-2 mt-4 text-center "></div>'
 
+                    new QRCode(document.getElementById("qrcode"), credsLinkUrl);
                 }
             });
         }
@@ -245,6 +251,7 @@
                             <p><strong>Date certified: </strong><span class="text-break" id="${tranHash}-credDate">${credDate}</span></p>
                             <p><strong>Transaction hash: </strong><span class="text-break" id="${tranHash}-tranHash">${tranHash}</span></p>
                             <h4><strong>Verified: </strong><span class="text-break" id="${tranHash}-verified">${verified}</span></h4>
+                            <h4><strong>Verified: </strong><span class="text-break" id="${tranHash}-verified">${verified}</span></h4>
 
                             
                             
@@ -278,7 +285,9 @@
             document.getElementById("credsLinkModal").innerHTML =
 
                 '<a href="' + credsLinkUrl + '" class="alert-link" target="_blank" >' + credsLinkUrl + '</a>'
+                + '<div id="qrcode" class="mb-2 mt-4 text-center "></div>'
 
+            new QRCode(document.getElementById("qrcode"), credsLinkUrl);
 
             document.getElementById("successAlert").classList.remove("d-none")
             document.getElementById("linkCorrupted").classList.add("d-none")

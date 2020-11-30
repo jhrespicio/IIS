@@ -33,7 +33,9 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
 
+    <!-- QR code generator -->
 
+    <script src="https://cdn.jsdelivr.net/npm/davidshimjs-qrcodejs@0.0.2/qrcode.min.js"></script>
 
 
     <!-- My scripts -->
@@ -343,7 +345,9 @@
 
                         '<a href="' + credsLinkUrl + '" class="alert-link" target="_blank" >' + credsLinkUrl + '</a>'
 
+                        + '<div id="qrcode" class="mb-2 mt-4 text-center "></div>'
 
+                    new QRCode(document.getElementById("qrcode"), credsLinkUrl);
 
                 })
                 .catch(function (error) {
