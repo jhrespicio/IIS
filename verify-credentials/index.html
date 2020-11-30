@@ -77,15 +77,15 @@
                     console.log(myArray, "clicked")
 
                     var arrStr = encodeURIComponent(JSON.stringify(myArray));
-                    $('#credentialsLink').attr({ href: 'verify-credentials/?array=' + arrStr });
+                    $('#credentialsLink').attr({ href: '/IIS/verify-credentials/?array=' + arrStr });
 
                     console.log(arrStr)
 
-                    document.getElementById("credentialsLink").innerHTML = 'verify-credentials/?array=' + arrStr
+                    document.getElementById("credentialsLink").innerHTML = '/IIS/verify-credentials/?array=' + arrStr
 
 
 
-                    var credsLinkUrl = 'verify-credentials/?array=' + arrStr
+                    var credsLinkUrl = '/IIS/verify-credentials/?array=' + arrStr
                     document.getElementById("credsLinkModal").innerHTML =
 
                         '<a href="' + credsLinkUrl + '" class="alert-link" target="_blank" >' + credsLinkUrl + '</a>'
@@ -131,15 +131,15 @@
                     console.log(myArray, "not clicked")
 
                     var arrStr = encodeURIComponent(JSON.stringify(myArray));
-                    $('#credentialsLink').attr({ href: 'verify-credentials/?array=' + arrStr });
+                    $('#credentialsLink').attr({ href: '/IIS/verify-credentials/?array=' + arrStr });
 
                     console.log(arrStr)
 
-                    document.getElementById("credentialsLink").innerHTML = 'verify-credentials/?array=' + arrStr
+                    document.getElementById("credentialsLink").innerHTML = '/IIS/verify-credentials/?array=' + arrStr
 
 
 
-                    var credsLinkUrl = 'verify-credentials/?array=' + arrStr
+                    var credsLinkUrl = '/IIS/verify-credentials/?array=' + arrStr
                     document.getElementById("credsLinkModal").innerHTML =
 
                         '<a href="' + credsLinkUrl + '" class="alert-link" target="_blank" >' + credsLinkUrl + '</a>'
@@ -249,15 +249,15 @@
             var credData = { "credLine": credLine, "certProof": certProofPlain, "tranHash": tranHash };
             myArray.push(credData)
             var arrStr = encodeURIComponent(JSON.stringify(myArray));
-            $('#credentialsLink').attr({ href: 'verify-credentials/?array=' + arrStr });
+            $('#credentialsLink').attr({ href: '/IIS/verify-credentials/?array=' + arrStr });
 
             console.log(arrStr)
 
-            document.getElementById("credentialsLink").innerHTML = 'verify-credentials/?array=' + arrStr
+            document.getElementById("credentialsLink").innerHTML = '/IIS/verify-credentials/?array=' + arrStr
 
 
 
-            var credsLinkUrl = 'verify-credentials/?array=' + arrStr
+            var credsLinkUrl = '/IIS/verify-credentials/?array=' + arrStr
             document.getElementById("credsLinkModal").innerHTML =
 
                 '<a href="' + credsLinkUrl + '" class="alert-link" target="_blank" >' + credsLinkUrl + '</a>'
