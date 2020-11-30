@@ -40,7 +40,12 @@
 
     <script>
 
+
+
         // new
+
+
+
 
         function checkUncheck(clicked_id) {
             $("#" + clicked_id).each(function () {
@@ -400,6 +405,7 @@
                         console.log(oneURL)
                         var verified
 
+
                         try {
                             const config = { responseType: 'blob' };
                             const response = await axios.get(oneURL, config
@@ -410,38 +416,6 @@
 
 
 
-                            var a = new FileReader();
-                            a.readAsBinaryString(blob);
-                            a.onloadend = await function () {
-                                var hash = CryptoJS.SHA256(CryptoJS.enc.Latin1.parse(a.result));
-
-
-                                console.log(hash)
-                                var lineHash = hash
-                                console.log(lineHash)
-                                console.log(lineHash.toString())
-
-                                var hashString = lineHash.toString()
-
-                                console.log(hashString)
-
-                                console.log(hashString == respHash)
-
-                                verified = hashString == respHash
-
-                                console.log(verified, "verified-1")
-
-
-
-                            };
-
-
-                            var certProofS, credLineS, resultMemoS, destinationIdS, resultSourceAccountS, resultCreatedAtS, resultHashS
-                            certProofS = certProofA
-                            credLineS = line
-                            resultMemoS = respHash
-
-
 
                             try {
                                 var transOps = await axios.get('https://horizon-testnet.stellar.org/transactions/' + forTrans + '/operations');
@@ -450,17 +424,64 @@
                                 $('#exampleModal').modal('show')
                             }
 
-                            console.log(transOps)
 
-                            destinationIdS = transOps.data._embedded.records[0].to
-                            resultSourceAccountS = transOps.data._embedded.records[0].from
-                            resultCreatedAtS = transOps.data._embedded.records[0].created_at
-                            resultHashS = forTrans
-                            verified = verified
 
-                            console.log(verified, "verified-2")
 
-                            writeSuccess(certProofS, credLineS, resultMemoS, destinationIdS, resultSourceAccountS, resultCreatedAtS, resultHashS, verified)
+
+
+                            var a = new FileReader();
+                            a.onloadend = function () {
+
+                                var hash = CryptoJS.SHA256(CryptoJS.enc.Latin1.parse(a.result));
+                                console.log(hash)
+                                var lineHash = hash
+                                console.log(lineHash)
+                                console.log(lineHash.toString())
+                                var hashString = lineHash.toString()
+                                console.log(hashString)
+                                console.log(hashString == respHash)
+                                verified = hashString == respHash
+                                console.log(verified, "verified-1")
+
+                                console.log(verified, "verified-1.5")
+
+
+                                var certProofS, credLineS, resultMemoS, destinationIdS, resultSourceAccountS, resultCreatedAtS, resultHashS
+                                certProofS = certProofA
+                                credLineS = line
+                                resultMemoS = respHash
+
+
+
+
+
+                                console.log(transOps)
+
+                                destinationIdS = transOps.data._embedded.records[0].to
+                                resultSourceAccountS = transOps.data._embedded.records[0].from
+                                resultCreatedAtS = transOps.data._embedded.records[0].created_at
+                                resultHashS = forTrans
+                                verified = verified
+
+                                console.log(verified, "verified-2")
+
+                                writeSuccess(certProofS, credLineS, resultMemoS, destinationIdS, resultSourceAccountS, resultCreatedAtS, resultHashS, verified)
+
+                            };
+
+
+
+                            a.readAsBinaryString(blob);
+
+
+
+
+
+
+
+
+
+
 
                         } catch (error) {
                             console.error(error);
