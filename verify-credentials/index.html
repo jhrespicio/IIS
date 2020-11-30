@@ -204,9 +204,17 @@
 
             if (verified == true) {
                 verified = '<span class="text-primary">' + verified + '</span>'
+
+                console.log(verified, "true")
+
+
             }
             else {
                 verified = '<span class="text-danger">' + verified + '</span>'
+
+                console.log(verified, "not true")
+
+
             }
 
 
@@ -468,6 +476,8 @@
                                 console.log(verified, "verified-2")
 
                                 writeSuccess(certProofS, credLineS, resultMemoS, destinationIdS, resultSourceAccountS, resultCreatedAtS, resultHashS, verified)
+
+                                console.log(verified, "verified-3")
 
                             };
 
