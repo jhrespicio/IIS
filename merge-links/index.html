@@ -148,7 +148,7 @@
             var arrStr = encodeURIComponent(JSON.stringify(myArrs));
 
 
-            var credsLinkUrl = '/IIS/verify-credentials/?array=' + arrStr
+            var credsLinkUrl = 'https://jhrespicio.github.io/IIS/verify-credentials/?array=' + arrStr
             document.getElementById("credsLinkModal").innerHTML =
 
                 '<a href="' + credsLinkUrl + '" class="alert-link" target="_blank" >' + credsLinkUrl + '</a>'
@@ -157,7 +157,7 @@
 
 
 
-            new QRCode(document.getElementById("qrcode"), "https://jhrespicio.github.io/IIS/" + credsLinkUrl);
+            new QRCode(document.getElementById("qrcode"), credsLinkUrl);
 
             $('#linkModal').modal('show')
         }
