@@ -99,7 +99,14 @@
 
                         + '<div id="qrcode" class="mb-2 mt-4 text-center "></div>'
 
-                    new QRCode(document.getElementById("qrcode"), credsLinkUrl);
+                    try {
+                        new QRCode(document.getElementById("qrcode"), credsLinkUrl);
+                    } catch (error) {
+                        console.error(error);
+                        $('#exampleModal').modal('show')
+                    }
+
+
 
 
 
