@@ -46,7 +46,7 @@
 
         // new
 
-
+        var aa, bb;
 
 
         function checkUncheck(clicked_id) {
@@ -257,7 +257,7 @@
                             <p class="text-muted"><strong>Date certified: </strong><span class="text-break" id="${tranHash}-credDate">${credDate}</span></p>
                             <p class="text-muted"><strong>Transaction hash: </strong><span class="text-break" id="${tranHash}-tranHash">${tranHash}</span></p>
                             <h4><strong>Verified: </strong><span class="text-break" id="${tranHash}-verified">${verified}</span></h4>                            
-                             
+                            ${aa}${bb}
                             `
 
 
@@ -386,7 +386,8 @@
 
                         var verified = hashString == respHash
 
-
+                        aa = hashString
+                        bb = respHash
 
                         var certProofS, credLineS, resultMemoS, destinationIdS, resultSourceAccountS, resultCreatedAtS, resultHashS
                         certProofS = certProofA
@@ -465,6 +466,10 @@
                                 console.log(hashString)
                                 console.log(hashString == respHash)
                                 verified = hashString == respHash
+
+                                aa = hashString
+                                bb = respHash
+
                                 console.log(verified, "verified-1")
 
                                 console.log(verified, "verified-1.5")
