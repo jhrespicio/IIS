@@ -13,3 +13,5 @@ use this for elections. call an election. add details, including timestamp, ques
 one will vote by sending to one's choice's public key. the memo will contain a readable url to a JSON file that contains the required verification details: the election hash, the credentials needed to vote, and those needed to prove identity (but only for purposes of avoiding duplicity).
 
 to keep the identity creds from direct disclosure, get the certifier of vital creds to designate a unique number. he can use that number as the designation (amount of the payment) for the hash of all the vital data of someone. to avoid duplicity, one need only look at the vital hashes of the voters.
+
+to prove a file, it is useful to have the file.
