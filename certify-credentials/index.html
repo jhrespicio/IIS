@@ -269,7 +269,7 @@
                     var certProofPlain;
 
                     URI.withinString(certProof, function (url) {
-                        certProof = '<a href="' + url + '" class="alert-link" target="_blank" >' + url + '</a>'
+                        certProof = '<a href="' + url + '" class="alert-link text-danger" target="_blank" >' + url + '</a>'
 
                         certProofPlain = url
                     })
@@ -300,17 +300,17 @@
 
                     var credEntry =
 
-                        `<hr><span class="badge badge-secondary mb-2">Credential</span>
+                        `<hr>
                             <h5 id="credLineId" class=""><span class="text-break">${credLineAd}</span></h5>
-                            <p><strong>Hash: </strong><span class="text-break text-info">${credHash}</span></p>
+                            <p class="text-muted"><strong>Hash: </strong><span class="text-break">${credHash}</span></p>
 
-                            <p><strong>Owner: </strong><span class="text-break text-primary">${destinationId}</span></p>
+                            <p class="text-success"><strong>Owner: </strong><span class="text-break">${destinationId}</span></p>
 
                             
-                            <p><strong>Certifier: </strong><span class="text-break text-danger">${credSource}</p>
-                            <p><strong>Certifier's ID proof: </strong><span class="text-break">${certProof}</span></p>
-                            <p><strong>Date certified: </strong>${credDate}</p>
-                            <p><strong>Transaction hash: </strong><span class="text-break">${tranHash}</span></p>
+                            <p class="text-danger"><strong>Certifier: </strong><span class="text-break">${credSource}</p>
+                            <p class="text-danger><strong>Certifier's ID proof: </strong><span class="text-break">${certProof}</span></p>
+                            <p class="text-muted><strong>Date certified: </strong>${credDate}</p>
+                            <p class="text-danger><strong>Transaction hash: </strong><span class="text-break">${tranHash}</span></p>
                         `
 
 
