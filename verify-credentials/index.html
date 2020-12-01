@@ -210,13 +210,25 @@
 
             var credHash = resultMemo
 
+
+
+
+
+
             console.log(verified)
 
-            if (verified == true) {
+
+
+            if (aa === bb) {
+                verified = true
+            } else {
+                verified = false
+            }
+
+            if (verified === true) {
                 verified = '<span class="text-primary">' + verified + '</span>'
 
                 console.log(verified, "true")
-
 
             }
             else {
@@ -233,6 +245,18 @@
             var tranHashHidden = tranHash
 
             console.log(certProofPlain, "certProofPlain")
+
+
+
+
+
+
+
+
+
+
+
+
 
             var credEntry =
 
@@ -257,7 +281,7 @@
                             <p class="text-muted"><strong>Date certified: </strong><span class="text-break" id="${tranHash}-credDate">${credDate}</span></p>
                             <p class="text-muted"><strong>Transaction hash: </strong><span class="text-break" id="${tranHash}-tranHash">${tranHash}</span></p>
                             <h4><strong>Verified: </strong><span class="text-break" id="${tranHash}-verified">${verified}</span></h4>                            
-                            <div>${aa}${bb}</div>
+                            
                             `
 
 
