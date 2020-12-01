@@ -185,7 +185,7 @@
             var certProofPlain;
 
             URI.withinString(certProof, function (url) {
-                certProof = '<a href="' + url + '" class="alert-link" target="_blank" >' + url + '</a>'
+                certProof = '<a href="' + url + '" class="alert-link text-danger" target="_blank" >' + url + '</a>'
 
                 certProofPlain = url
             })
@@ -245,16 +245,17 @@
     <input type="checkbox" class="form-check-input big-checkbox" id="${tranHash}" onclick="checkUncheck(this.id)" checked>
     <label class="form-check-label" for="exampleCheck1"></label>
   </div>
-  <h5 id="credLineId" class=""><span class="text-break" id="${tranHash}-credLine">${credLineAd}</span></h5>
-                            <p><strong>Hash: </strong><span class="text-break text-info" id="${tranHash}-credHash">${credHash}</span></p>
+  <h5 id="credLineId" class="">
+  <span class="text-break" id="${tranHash}-credLine">${credLineAd}</span></h5>
+                            <p class="text-muted"><strong>Hash: </strong><span class="text-break" id="${tranHash}-credHash">${credHash}</span></p>
 
-                            <p><strong>Owner: </strong><span class="text-break text-primary" id="${tranHash}-destinationId">${destinationId}</span></p>
+                            <p class="text-success"><strong>Owner: </strong><span class="text-break text-success" id="${tranHash}-destinationId">${destinationId}</span></p>
 
                             
-                            <p><strong>Certifier: </strong><span class="text-break text-danger" id="${tranHash}-credSource">${credSource}</p>
-                            <p><strong>Certifier's ID proof: </strong><span class="text-break" id="${tranHash}-certProof">${certProof}</span></p>
-                            <p><strong>Date certified: </strong><span class="text-break" id="${tranHash}-credDate">${credDate}</span></p>
-                            <p><strong>Transaction hash: </strong><span class="text-break" id="${tranHash}-tranHash">${tranHash}</span></p>
+                            <p class="text-danger"><strong>Certifier: </strong><span class="text-break text-danger" id="${tranHash}-credSource">${credSource}</p>
+                            <p class="text-danger"><strong>Certifier's ID proof: </strong><span class="text-break" id="${tranHash}-certProof">${certProof}</span></p>
+                            <p class="text-muted"><strong>Date certified: </strong><span class="text-break" id="${tranHash}-credDate">${credDate}</span></p>
+                            <p class="text-muted"><strong>Transaction hash: </strong><span class="text-break" id="${tranHash}-tranHash">${tranHash}</span></p>
                             <h4><strong>Verified: </strong><span class="text-break" id="${tranHash}-verified">${verified}</span></h4>                            
                              
                             `
