@@ -240,11 +240,12 @@
                 
 <span id="${tranHash}-certProofPlainHidden" class="d-none">${certProofPlainHidden}</span><span id="${tranHash}-credLineHidden" class="d-none">${credLineHidden}</span><span id="${tranHash}-tranHashHidden" class="d-none">${tranHashHidden}</span>
 
-                <hr><span class="badge badge-secondary mb-2">Credential</span>
-                <div class="form-group form-check mb-0">
-    <input type="checkbox" class="form-check-input" id="${tranHash}" onclick="checkUncheck(this.id)" checked>
-    <label class="form-check-label" for="exampleCheck1"><h5 id="credLineId" class=""><span class="text-break" id="${tranHash}-credLine">${credLineAd}</span></h5></label>
+                <hr>
+                <div class="form-group form-check mb-4">
+    <input type="checkbox" class="form-check-input big-checkbox" id="${tranHash}" onclick="checkUncheck(this.id)" checked>
+    <label class="form-check-label" for="exampleCheck1"></label>
   </div>
+  <h5 id="credLineId" class=""><span class="text-break" id="${tranHash}-credLine">${credLineAd}</span></h5>
                             <p><strong>Hash: </strong><span class="text-break text-info" id="${tranHash}-credHash">${credHash}</span></p>
 
                             <p><strong>Owner: </strong><span class="text-break text-primary" id="${tranHash}-destinationId">${destinationId}</span></p>
@@ -558,6 +559,14 @@
 
     </script>
 
+
+    <style>
+        .big-checkbox {
+            width: 30px;
+            height: 30px;
+
+        }
+    </style>
 
 
     <title>IIS - Verify credentials</title>
