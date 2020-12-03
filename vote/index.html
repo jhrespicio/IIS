@@ -60,7 +60,147 @@
     <script>
 
 
+        function submitVote() {
 
+
+            document.getElementById("voteButton").disabled = true
+
+
+            document.getElementById("voteSpinner").classList.remove("d-none")
+
+
+
+            var server = new StellarSdk.Server("https://horizon-testnet.stellar.org");
+
+            try {
+                var sourceKeys = StellarSdk.Keypair.fromSecret(
+                    document.getElementById("voterSecretKey").value,
+                );
+            } catch (e) {
+                console.error(e)
+
+                document.getElementById("voteButton").disabled = false
+
+                document.getElementById("voteSpinner").classList.add("d-none")
+
+                document.getElementById("exampleModalLabel").innerHTML = "Error"
+
+                document.getElementById("modalMsg").innerHTML = "Something went wrong."
+
+                document.getElementById("modalMsg").classList.add("alert-danger")
+
+                document.getElementById("modalMsg").classList.remove("alert-success")
+
+                return $('#exampleModal').modal('show')
+            }
+
+
+
+
+            var destinationId = document.getElementById("choicePublicKey").value;
+            // Transaction will hold a built transaction we can resubmit if the result is unknown.
+            var transaction;
+
+            // First, check to make sure that the destination account exists.
+            // You could skip this, but if the account does not exist, you will be charged
+            // the transaction fee when the transaction fails.
+            server
+                .loadAccount(destinationId)
+                // If the account is not found, surface a nicer error message for logging.
+                .catch(function (error) {
+                    if (error instanceof StellarSdk.NotFoundError) {
+                        throw new Error("The destination account does not exist!");
+                    } else return error;
+
+
+
+
+                })
+                // If there was no error, load up-to-date information on your account.
+                .then(function () {
+                    return server.loadAccount(sourceKeys.publicKey());
+                })
+                .then(function (sourceAccount) {
+                    // Start building the transaction.
+                    transaction = new StellarSdk.TransactionBuilder(sourceAccount, {
+                        fee: StellarSdk.BASE_FEE,
+                        networkPassphrase: StellarSdk.Networks.TESTNET,
+                    })
+                        .addOperation(
+                            StellarSdk.Operation.payment({
+                                destination: destinationId,
+                                // Because Stellar allows transaction in many currencies, you must
+                                // specify the asset type. The special "native" asset represents Lumens.
+                                asset: StellarSdk.Asset.native(),
+                                amount: "0.0000001",
+                            }),
+                        )
+                        // A memo allows you to add your own metadata to a transaction. It's
+                        // optional and does not affect how Stellar treats the transaction.
+                        .addMemo(StellarSdk.Memo.text(document.getElementById("URLToJson").value))
+                        // Wait a maximum of three minutes for the transaction
+                        .setTimeout(180)
+                        .build();
+                    // Sign the transaction to prove you are actually the person sending it.
+                    transaction.sign(sourceKeys);
+                    // And finally, send it off to Stellar!
+                    return server.submitTransaction(transaction);
+                })
+                .then(function (result) {
+                    console.log("Success! Results:", result);
+
+                    console.log("Memo:", result.memo);
+
+
+                    document.getElementById("voteButton").disabled = false
+
+
+                    document.getElementById("voteSpinner").classList.add("d-none")
+
+
+                    document.getElementById("exampleModalLabel").innerHTML = "Success!"
+
+                    document.getElementById("modalMsg").innerHTML = "Vote cast."
+
+                    document.getElementById("modalMsg").classList.add("alert-success")
+
+                    document.getElementById("modalMsg").classList.remove("alert-danger")
+
+                    return $('#exampleModal').modal('show')
+
+
+
+                })
+                .catch(function (error) {
+                    console.error("Something went wrong!", error);
+                    // If the result is unknown (no response body, timeout etc.) we simply resubmit
+                    // already built transaction:
+                    // server.submitTransaction(transaction);
+
+                    document.getElementById("voteButton").disabled = false
+
+
+
+                    document.getElementById("voteSpinner").classList.add("d-none")
+
+
+
+
+                    document.getElementById("exampleModalLabel").innerHTML = "Error"
+
+                    document.getElementById("modalMsg").innerHTML = "Something went wrong."
+
+                    document.getElementById("modalMsg").classList.add("alert-danger")
+
+                    document.getElementById("modalMsg").classList.remove("alert-success")
+
+
+
+                    return $('#exampleModal').modal('show')
+
+
+                });
+        }
 
 
 
@@ -130,19 +270,19 @@
 
                         <div class="form-group">
                             <label for="formGroupExampleInput">Choice's public key</label>
-                            <input type="text" class="form-control" id="ChoicePublicKey"
+                            <input type="text" class="form-control" id="choicePublicKey"
                                 placeholder="e.g., GCK52AZOKKNZQKLQP2SNUAN7D6AVSO6ZDOK4R2ODKSDHWBNAJ6VY7QXC" required>
                         </div>
 
                         <div class="form-group">
                             <label for="formGroupExampleInput">URL to JSON</label>
-                            <input type="text" class="form-control border-secondary" id="URLToJson"
+                            <input type="text" class="form-control" id="URLToJson"
                                 placeholder="e.g., https://tools.learningcontainer.com/sample-json-file.json">
                         </div>
 
                         <div class="form-group">
                             <label for="exampleInputPassword1">Your secret key</label>
-                            <input type="password" class="form-control border-warning" id="voterSecretKey">
+                            <input type="password" class="form-control" id="voterSecretKey">
                         </div>
 
 
@@ -163,18 +303,18 @@
 
 
 
-                        <input id="voteButton" type="button" class="btn btn-primary border-warning"
-                            onclick="submitVote()" value="Vote">
+                        <input id="voteButton" type="button" class="btn btn-primary" onclick="submitVote()"
+                            value="Vote">
 
-                        <div id="certifySpinner" class="spinner-border mt-2  d-none" role="status">
-                            <span class="sr-only">Loading...</span>
-                        </div>
+
 
 
 
                     </form>
 
-
+                    <div id="voteSpinner" class="spinner-border mt-3  d-none" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
 
 
 
