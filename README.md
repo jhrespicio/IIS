@@ -8,7 +8,7 @@ to prove the identity of the certifier of a string of text, one can show proof o
 
 use for contracts. e.g., one sends (certifies) the contract file to the other parties. the contract contains qr codes to all the parties' ID proof. stamp "offer till returned" on the contract. the contract binds the party who, with respect to a sending party, sends the same file back to him. the sending back is the acceptance of the offer.
 
-use this for elections. call an election. add details, including question, choices, and voting period. attach a unique public key to each choice. hash the details.
+use this for elections. call an election. add details, including timestamp, question, choices, and voting period. attach a unique public key to each choice. hash the details.
 
 one will vote by sending to one's choice's public key. the memo will contain a readable url to a JSON file that contains the required verification details: the election hash, the credentials needed to vote, and those needed to prove identity (only for purposes of avoiding duplicity).
 
