@@ -84,6 +84,32 @@
           "https://horizon-testnet.stellar.org"
         );
 
+        var dateFrom = new Date(
+          Date.parse(document.getElementById("countFrom").value)
+        );
+        var dateTo = new Date(
+          Date.parse(document.getElementById("countTo").value)
+        );
+
+        var isValidDateDateTo = isValidDate(dateTo);
+
+        console.log("isValidDate_dateTo", isValidDateDateTo);
+
+        var jsonMap = document.getElementById("voterJsonMap").value;
+        var jsonMapJson = JSON.parse(jsonMap);
+        console.log("jsonMapJson: ", jsonMapJson);
+
+        var JMJKeys = [];
+        for (var k in jsonMapJson) JMJKeys.push(k);
+
+        console.log("JMJKeys: ", JMJKeys);
+
+        var jsonToCheck = document.getElementById("dataToCheck").value;
+        var jsonToCheckJson = JSON.parse(jsonToCheck);
+        console.log("jsonToCheckJson: ", jsonToCheckJson);
+
+        // stream starts here
+
         var callback = function (resp) {
           console.log(resp);
 
@@ -96,13 +122,6 @@
 
           var dateParsed = new Date(Date.parse(resp.created_at));
 
-          var dateFrom = new Date(
-            Date.parse(document.getElementById("countFrom").value)
-          );
-          var dateTo = new Date(
-            Date.parse(document.getElementById("countTo").value)
-          );
-
           console.log("dates_parsed: ", dateParsed, dateFrom, dateTo);
 
           var voteAfterStart = dateParsed >= dateFrom;
@@ -113,12 +132,10 @@
 
           console.log("vote_before_end: ", voteBeforeEnd);
 
-          console.log("isValidDate_dateTo", isValidDate(dateTo));
-
           if (!voteAfterStart) {
             return console.error("Vote cast too early");
           } else {
-            if (isValidDate(dateTo) && !voteBeforeEnd) {
+            if (isValidDateDateTo && !voteBeforeEnd) {
               return console.error("Vote cast too late");
             }
           }
@@ -152,27 +169,36 @@
 
                 axios.get(jUrl).then(function (response) {
                   // handle success
+
                   console.log(response);
 
-                  var credKey = document.getElementById("keyCred").value;
-                  var hashEl = document.getElementById("elHash").value;
-                  var transId = document.getElementById("idTrans").value;
+                  var i, len;
+                  var a = JMJKeys;
 
-                  console.log("Keys in JSON: ", credKey, hashEl, transId);
+                  var voterJson = [];
 
-                  var credKeyO = ("data." + credKey)
-                    .split(".")
-                    .reduce(index, response);
+                  for (i = 0, len = a.length; i < len; ++i) {
+                    console.log(a[i]);
 
-                  var hashElO = ("data." + hashEl)
-                    .split(".")
-                    .reduce(index, response);
+                    var dynVar = ("data." + a[i])
+                      .split(".")
+                      .reduce(index, response);
 
-                  var transId = ("data." + transId)
-                    .split(".")
-                    .reduce(index, response);
+                    console.log(dynVar);
 
-                  console.log("Values in JSON: ", credKeyO, hashElO, transId);
+                    console.log(typeof dynVar == "undefined");
+
+                    if (typeof dynVar == "undefined") {
+                      return console.error(a[i], dynVar);
+                    } else {
+                      var dynVar2 = a[i]
+                        .split(".")
+                        .reduce(index, jsonToCheckJson);
+
+                      var eHashesEqual =
+                        jsonToCheckJson.election_hash == dynVar;
+                    }
+                  }
                 });
               });
             })
@@ -181,6 +207,8 @@
               console.log(error);
             });
         };
+
+        // stream ends
 
         var es = server
           .payments()
@@ -194,8 +222,6 @@
   </head>
 
   <body>
-     
-
     <div class="bg-dark text-light text-center">
       <small>This page interacts with the test network 🧪</small>
     </div>
@@ -234,7 +260,6 @@
         <a class="nav-link" href="../count-votes/">Count votes</a>
       </li>
     </ul>
-     
 
     <div class="container">
       <div class="row">
@@ -256,41 +281,65 @@
             </div>
 
             <div class="form-group">
-              <label for="formGroupExampleInput"
-                >Key for the election hash</label
+              <label for="exampleFormControlTextarea1"
+                >Data to check (JSON format)</label
               >
-              <input
-                type="text"
-                class="form-control"
-                id="elHash"
-                placeholder="election_hash"
-              />
+              <small id="" class="form-text text-muted">Example</small>
+              <small>
+                <pre class="pre-scrollable bg-light border">
+{
+  "election_hash": "414966c818679fd8f3a359bdf10ff1dabb485a3ea607d7d752c47d74c5a513e0",
+  "citizenship": {
+    "data": { "country": "philippines" },
+    "certifier": "GCG52HQUFMXXOU5OPWNHUFZADJ5DTN4JLMEDQOSCXAB43SFW3HKZLO6N",
+    "certificate_valid_after": "2020-12-05T12:15:24Z"
+  },
+  "of_age": {
+    "data": { "of_age": true },
+    "certifier": "GAIC2TRRTXGLOGWUGBT2AX42NOU76SMCCSQ2TVB7AGLEJWMNMAI4GAWN"
+  },
+  "can_vote": {
+    "data": { "can_vote": true },
+    "certifier": "GCQS7TJFVHK42YV5DSGGIKK4R7LTHHE2YJ7DXZ3OZUOHIT5AD6AX2ZW7",
+    "certificate_valid_after": "2020-12-05T12:15:24Z"
+  },
+  "identity_hash": {
+    "certifier": "GAIC2TRRTXGLOGWUGBT2AX42NOU76SMCCSQ2TVB7AGLEJWMNMAI4GAWN",
+    "code": "0.0000002"
+  }
+}</pre
+                >
+              </small>
+              <textarea
+                class="form-control text-monospace"
+                id="dataToCheck"
+                rows="11"
+                placeholder=""
+                required
+              ></textarea>
             </div>
 
             <div class="form-group">
-              <label for="formGroupExampleInput"
-                >Key for the transaction hash to the required credential to
-                vote</label
-              >
-              <input
-                type="text"
-                class="form-control"
-                id="keyCred"
-                placeholder="credential"
-              />
-            </div>
-
-            <div class="form-group">
-              <label for="formGroupExampleInput"
-                >Key for the transaction hash to the joined identity
-                credentials</label
-              >
-              <input
-                type="text"
-                class="form-control"
-                id="idTrans"
-                placeholder="id_trans"
-              />
+              <label for="exampleFormControlTextarea1">Voter's JSON map</label>
+              <small id="" class="form-text text-muted">Example</small>
+              <small>
+                <pre class="pre-scrollable bg-light border">
+{
+  "election_hash": "1a23639c8e48e4395df837d024cf8edc2a14ec37b1505f65ddf38b7bbccba210",
+  "citizenship": "a354f6b6a94c4be5681b833dc828ea0ca9645af487a1d04cda697e37149d5400",
+  "of_age": "994ac638354f0aa3766e22ac26fc93ff0cf232ff289e27407263a14be179e280",
+  "can_vote": "ca767afb82cd654461cdc5ecb79ec5f800e5a7dccbd21376a5cf0dad4366110c",
+  "identity_hash": "9ea8059d5dd3294aca98283efa87b724e7e1ba9dec8643e6293da2daac122b6c"
+}</pre
+                >
+              </small>
+              <textarea
+                class="form-control text-monospace"
+                id="voterJsonMap"
+                rows="7"
+                placeholder=""
+                required
+              ></textarea>
             </div>
 
             <div class="form-group">
@@ -316,7 +365,6 @@
                 placeholder=""
               />
             </div>
-
             <input
               id="countButton"
               type="button"

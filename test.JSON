@@ -1,0 +1,21 @@
+{
+  "election_hash": "414966c818679fd8f3a359bdf10ff1dabb485a3ea607d7d752c47d74c5a513e0",
+  "citizenship": {
+    "data": { "country": "philippines" },
+    "certifier": "GCG52HQUFMXXOU5OPWNHUFZADJ5DTN4JLMEDQOSCXAB43SFW3HKZLO6N",
+    "certificate_valid_after": "2020-12-05T12:15:24Z"
+  },
+  "of_age": {
+    "data": { "of_age": true },
+    "certifier": "GAIC2TRRTXGLOGWUGBT2AX42NOU76SMCCSQ2TVB7AGLEJWMNMAI4GAWN"
+  },
+  "can_vote": {
+    "data": { "can_vote": true },
+    "certifier": "GCQS7TJFVHK42YV5DSGGIKK4R7LTHHE2YJ7DXZ3OZUOHIT5AD6AX2ZW7",
+    "certificate_valid_after": "2020-12-05T12:15:24Z"
+  },
+  "identity_hash": {
+    "certifier": "GAIC2TRRTXGLOGWUGBT2AX42NOU76SMCCSQ2TVB7AGLEJWMNMAI4GAWN",
+    "code": "0.0000002"
+  }
+}
