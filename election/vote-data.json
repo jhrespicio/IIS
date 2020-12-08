@@ -1,0 +1,18 @@
+{
+  "election_hash": "b1538f9f2c7857e70c69d5976677528949520f9bf02c3a031f06dacaca538152",
+  "credentials": [
+    {
+      "credential_hash": "1da5650547e34575a6b844b3b1ccaed985266840e10f91c3f8730802d5a3fcd8",
+      "transaction_hash": "d1ba084e2fbd66edc97b6ede416ce732710a45ad5d8f713c44e4d7b38d19587d"
+    },
+    {
+      "credential_hash": "36f13e17a3cbc3e8e84fa0fb3233f2256e0dd597de94aae667ef56e947dff85a",
+      "transaction_hash": "2029fdbb0b69c9d298861afdad6eda9ffedb5b236acad959bd1789a8e351802c"
+    },
+    {
+      "credential_hash": "0b2c94ba04df69f65f925ce8c543cb961fa2003ad89d90567f27de493498e737",
+      "transaction_hash": "51a14900d198a1355f7bb4fd4f61989869cdaa802bf82e61ae7bc1b04f87ad54"
+    }
+  ],
+  "identity_trans_hash": "c878f7d95daf831ea98e4401ee8ef22c28f45cbfc0f7884fdc5e90be9e8978b3"
+}

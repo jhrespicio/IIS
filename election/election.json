@@ -1,0 +1,42 @@
+{
+  "created_at": "2020-12-05T12:15:24Z",
+  "call": "Vote for The President of the United States",
+  "choices": [
+    {
+      "choice": "Joe Biden",
+      "public_key": "GBBNDOFP6HTQFYKKKJ4PZDUTC7AX2B32IEHVEYTUKPHWVQWRV4ASY5GJ"
+    },
+    {
+      "choice": "Donald Trump",
+      "public_key": "GCTHJRF3P2WCVEQU6L4SN7NVNLSTYQ4MSZBTZHUXQFYX5ESXFX3WXUOC"
+    }
+  ],
+  "voting_start": "2020-12-05T12:15:24Z",
+  "voting_end": "2021-12-08T14:30:06Z",
+  "credentials_required": [
+    {
+      "data": { "country_of_citizenship": "philippines" },
+      "hash": "0b2c94ba04df69f65f925ce8c543cb961fa2003ad89d90567f27de493498e737",
+      "certifier": "GDIAIRDOL3B7CO4ITCQZGEEHTG5KJ5DA3CJMLUGQUZRZBY4Y5VNDLW6L",
+      "certificate_valid_after": "2020-12-05T12:15:24Z"
+    },
+    {
+      "data": { "of_age": true },
+      "hash": "1da5650547e34575a6b844b3b1ccaed985266840e10f91c3f8730802d5a3fcd8",
+      "certifier": "GB4PXVFNOWILGS5SVNRJIOUF72AIZH2N5R7X7PP2MDSK325BH72C23HG",
+      "certificate_valid_after": null
+    },
+    {
+      "data": { "can_vote": true },
+      "hash": "36f13e17a3cbc3e8e84fa0fb3233f2256e0dd597de94aae667ef56e947dff85a",
+      "certifier": "GALYF7JTCL5M6ZJR7YP52Q5QPOLX4JNQSXVYNQ6A245PNKNIAPMMMXLF",
+      "certificate_valid_after": "2020-12-05T12:15:24Z"
+    }
+  ],
+  "identity_required": {
+    "code": "0.0000002",
+    "certifier": "GB4PXVFNOWILGS5SVNRJIOUF72AIZH2N5R7X7PP2MDSK325BH72C23HG",
+    "certificate_valid_after": "2020-12-05T12:15:24Z"
+  },
+  "hash": ""
+}

@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
+      integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2"
+      crossorigin="anonymous"
+    />
+
+    <!-- Stellar SDK -->
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/stellar-sdk/7.0.0/stellar-sdk.min.js"
+      integrity="sha512-AGpfxQX0hj6dYqSjSzRs9MosacqUTDHlVT4Ym0RiCbFHIMWXKsUrGq2C4yrF04fMzq3C73VxNZNOUbqxqr0pOg=="
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      console.log(StellarSdk);
+    </script>
+
+    <!-- crypto.js -->
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"
+      integrity="sha512-nOQuvD9nKirvxDdvQ9OMqe2dgapbPB7vYAMrzJihw5m+aNcf0dX53m6YxM4LgA9u8e9eg9QX+/+mPu8kCNpV2A=="
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- URI.js -->
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/URI.js/1.19.2/URI.min.js"
+      integrity="sha512-YQAqeLT4VuAZV80lmk6OE3XtmMW3eDxUtNf2V2w16eypX21CDtelaVsFD1QLUBCQuJEenK3jPqYPmpNUasdktA=="
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- axios -->
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.0/axios.min.js"
+      integrity="sha512-DZqqY3PiOvTP9HkjIWgjO6ouCbq+dxqWoJZ/Q+zPYNHmlnI2dQnbJ5bxAHpAMw+LXRm4D72EIRXzvcHQtE8/VQ=="
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- QR code generator -->
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/davidshimjs-qrcodejs@0.0.2/qrcode.min.js"
+      integrity="sha256-xUHvBjJ4hahBW8qN9gceFBibSFUzbe9PNttUvehITzY="
+      crossorigin="anonymous"
+    ></script>
+
+    <title>IIS - Election</title>
+  </head>
+
+  <body>
+     
+
+    <!-- My scripts -->
+
+    <script>
+      var election = {
+        created_at: "2020-12-05T12:15:24Z",
+        call: "Vote for The President of the United States",
+        choices: [
+          {
+            choice: "Joe Biden",
+            public_key:
+              "GBBNDOFP6HTQFYKKKJ4PZDUTC7AX2B32IEHVEYTUKPHWVQWRV4ASY5GJ",
+          },
+          {
+            choice: "Donald Trump",
+            public_key:
+              "GCTHJRF3P2WCVEQU6L4SN7NVNLSTYQ4MSZBTZHUXQFYX5ESXFX3WXUOC",
+          },
+        ],
+        voting_start: "2020-12-05T12:15:24Z",
+        voting_end: "	2021-12-08T14:30:06Z",
+        credentials_required: [
+          {
+            data: { country_of_citizenship: "philippines" },
+            hash:
+              "0b2c94ba04df69f65f925ce8c543cb961fa2003ad89d90567f27de493498e737",
+            certifier:
+              "GDIAIRDOL3B7CO4ITCQZGEEHTG5KJ5DA3CJMLUGQUZRZBY4Y5VNDLW6L",
+            certificate_valid_after: "2020-12-05T12:15:24Z",
+          },
+          {
+            data: { of_age: true },
+            hash:
+              "1da5650547e34575a6b844b3b1ccaed985266840e10f91c3f8730802d5a3fcd8",
+            certifier:
+              "GB4PXVFNOWILGS5SVNRJIOUF72AIZH2N5R7X7PP2MDSK325BH72C23HG",
+            certificate_valid_after: null,
+          },
+          {
+            data: { can_vote: true },
+            hash:
+              "36f13e17a3cbc3e8e84fa0fb3233f2256e0dd597de94aae667ef56e947dff85a",
+            certifier:
+              "GALYF7JTCL5M6ZJR7YP52Q5QPOLX4JNQSXVYNQ6A245PNKNIAPMMMXLF",
+            certificate_valid_after: "2020-12-05T12:15:24Z",
+          },
+        ],
+        identity_required: {
+          code: "0.0000002",
+          certifier: "GB4PXVFNOWILGS5SVNRJIOUF72AIZH2N5R7X7PP2MDSK325BH72C23HG",
+          certificate_valid_after: "2020-12-05T12:15:24Z",
+        },
+        hash:
+          "b1538f9f2c7857e70c69d5976677528949520f9bf02c3a031f06dacaca538152",
+      };
+
+      console.log(election);
+
+      var server = new StellarSdk.Server("https://horizon-testnet.stellar.org");
+
+      var electionChoices = election.choices;
+
+      var i;
+      for (i = 0; i < electionChoices.length; i++) {
+        var g = document.createElement("div");
+        g.setAttribute("id", electionChoices[i].public_key);
+        g.innerHTML = 0;
+        document.body.appendChild(g);
+        streamVotes(electionChoices[i].public_key);
+      }
+
+      async function streamVotes(publicKey) {
+        var callback = function (resp) {
+          console.log(resp);
+          var voteDate = resp.created_at;
+          var voteBy = resp.from;
+          var voteFor = resp.to;
+          var transLink = resp._links.transaction.href;
+
+          checkDate(voteDate);
+
+          getTrans(transLink, voteBy);
+        };
+
+        var es = server
+          .payments()
+          .forAccount(publicKey)
+          .stream({ onmessage: callback });
+      }
+
+      var voteStart = new Date(Date.parse(election.voting_start));
+      if (election.voting_end == null) {
+        var d = new Date();
+        var year = d.getFullYear();
+        var month = d.getMonth();
+        var day = d.getDate();
+        var voteEnd = new Date(year + 100, month, day);
+      } else {
+        var voteEnd = new Date(Date.parse(election.voting_end));
+      }
+      var electionDate = new Date(Date.parse(election.created_at));
+
+      async function checkDate(voteDate) {
+        if (electionDate <= voteStart <= voteDate <= voteEnd) {
+          console.log("Date passed");
+        } else {
+          return console.error("Date failed");
+        }
+      }
+
+      async function getTrans(transLink, voteBy) {
+        axios
+          .get(transLink)
+          .then(function (response) {
+            console.log(response);
+            var vUrl = response.data.memo;
+            if (isValidUrl(vUrl)) {
+              getVUrl(vUrl, voteBy);
+            } else {
+              return console.error("Invalid URL");
+            }
+          })
+          .catch(function (error) {
+            return console.error(error);
+          });
+      }
+
+      function isValidUrl(string) {
+        try {
+          new URL(string);
+        } catch (_) {
+          return false;
+        }
+        return true;
+      }
+
+      async function getVUrl(vUrl, voteBy) {
+        var getFinUrl =
+          "https://expand-url-jhrespicio.herokuapp.com/?as=" + vUrl;
+        axios
+          .get(getFinUrl)
+          .then(function (response) {
+            console.log(response);
+            // var finalLink = response.data;
+            var finalLink =
+              "https://run.mocky.io/v3/2a070a9e-f575-4d50-bc61-1ae048a7f522";
+
+            getVoteData(finalLink, voteBy);
+          })
+          .catch(function (error) {
+            return console.error(error);
+          });
+      }
+
+      async function getVoteData(finalLink, voteBy) {
+        axios
+          .get(finalLink)
+          .then(function (response) {
+            console.log(response);
+
+            var elHash = response.data.election_hash;
+
+            if (elHash !== election.hash) {
+              return console.error("Election hash mismatch");
+            }
+
+            var idTransHash = response.data.identity_trans_hash;
+
+            var voteCredentials = response.data.credentials;
+
+            getIdTrans(idTransHash, voteBy, voteCredentials);
+          })
+          .catch(function (error) {
+            return console.error(error);
+          });
+      }
+
+      var voters = [];
+
+      async function getIdTrans(idTransHash, voteBy, voteCredentials) {
+        // var getLink = server + idTransHash;
+        var getLink =
+          "https://horizon-testnet.stellar.org/transactions/" +
+          "a49f231a62be0db796f9666b19ce0a8df6cb8b11fbea79572c2711445b3df9ee";
+        axios
+          .get(getLink)
+          .then(function (response) {
+            console.log(response);
+
+            var uniqId = response.data.memo;
+
+            var uLink =
+              "https://horizon-testnet.stellar.org/transactions/" +
+              // mock below
+              "e3188794d67b37b7c7138319b8196e4075a7ab1da05b7a60c7f458a443467a0d" +
+              "/operations";
+
+            if (containsObject(uniqId, voters)) {
+              return console.error("Voter already voted");
+            }
+
+            var elCreds = election.credentials_required;
+
+            var vCHashes = [];
+            var index;
+            for (index = 0; index < voteCredentials.length; index++) {
+              vCHashes.push(voteCredentials[index].credential_hash);
+            }
+
+            var eCHashes = [];
+            var index;
+            for (index = 0; index < elCreds.length; index++) {
+              eCHashes.push(elCreds[index].hash);
+            }
+            if (!checker(vCHashes, eCHashes)) {
+              return console.error("Credentials incomplete");
+            }
+
+            if (!hasDuplicates(vCHashes)) {
+              return console.error("Duplicate credentials exist");
+            }
+
+            getOpsId(uLink, voteBy, elCreds, voteCredentials);
+          })
+          .catch(function (error) {
+            return console.error(error);
+          });
+      }
+
+      function containsObject(obj, list) {
+        var i;
+        for (i = 0; i < list.length; i++) {
+          if (list[i] === obj) {
+            return true;
+          }
+        }
+
+        return false;
+      }
+
+      let checker = (arr, target) => target.every((v) => arr.includes(v));
+
+      function hasDuplicates(array) {
+        return new Set(array).size !== array.length;
+      }
+
+      async function getOpsId(uLink, voteBy, elCreds, voteCredentials) {
+        axios
+          .get(uLink)
+          .then(function (response) {
+            console.log(response);
+
+            var idCode = response.data._embedded.records[0].amount;
+            var idDate = response.data._embedded.records[0].created_at;
+            var idCert = response.data._embedded.records[0].from;
+            var idOwn = response.data._embedded.records[0].to;
+
+            if (idCode !== election.identity_required.code) {
+              return console.error("Wrong ID");
+            }
+
+            if (idDate <= election.identity_required.certificate_valid_after) {
+              return console.error("Expired ID");
+            }
+            if (idCert !== election.identity_required.certifier) {
+              return console.error("Wrong ID provider");
+            }
+            if (idOwn !== voteBy) {
+              return console.error("Wrong ID owner");
+            }
+
+            checkCreds(voteBy, elCreds, voteCredentials);
+          })
+          .catch(function (error) {
+            return console.error(error);
+          });
+      }
+
+      async function checkCreds(voteBy, elCreds, voteCredentials) {
+        for (index = 0; index < elCreds.length; index++) {
+          var checkElHash = voteCredentials.find(
+            (x) => x.hash === elCreds[index].hash
+          ).transaction_hash;
+
+          var vCIndex = voteCredentials.findIndex(
+            (x) => x.hash === elCreds[index].hash
+          );
+
+          var vCTHLink =
+            "https://horizon-testnet.stellar.org/transactions/" +
+            voteCredentials[vCIndex].transaction_hash;
+
+          axios
+            .get(vCTHLink)
+            .then(function (response) {
+              console.log(response);
+
+              var vCMemo = response.data.memo;
+
+              if (vCMemo !== elCreds[index].hash) {
+                return console.error("Wrong credential");
+              }
+
+              var vCTHLinkOps =
+                "https://horizon-testnet.stellar.org/transactions/" +
+                voteCredentials[vCIndex].transaction_hash +
+                "/operations";
+
+              axios
+                .get(vCTHLinkOps)
+                .then(function (response) {
+                  console.log(response);
+
+                  var vCCert = response.data.from;
+                  var vCOwner = response.data.to;
+                  var vCDate = response.data.created_at;
+
+                  if (vCCert !== elCreds[index].certifier) {
+                    return console.error("Wrong credential provider");
+                  }
+
+                  if (vCOwner !== voteBy) {
+                    return console.error("Wrong credential owner");
+                  }
+
+                  if (vCDate <= elCreds[index].certificate_valid_after) {
+                    return console.error("Expired credential");
+                  }
+
+                  var choiceCount = parseInt(
+                    document.getElementById(vCCert).innerHTML
+                  );
+
+                  var choiceCountInc = choiceCount++;
+
+                  document.getElementById(vCCert).innerHTML = choiceCountInc;
+                })
+                .catch(function (error) {
+                  return console.error(error);
+                });
+            })
+            .catch(function (error) {
+              return console.error(error);
+            });
+        }
+      }
+    </script>
+
+    <!-- Optional JavaScript; choose one of the two! -->
+
+    <!-- Option 1: jQuery and Bootstrap Bundle (includes Popper) -->
+    <script
+      src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+      integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx"
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- Option 2: jQuery, Popper.js, and Bootstrap JS
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" integrity="sha384-w1Q4orYjBQndcko6MimVbzY0tgp4pWB4lZ7lr30WKz0vr/aWKhXdBNmNb5D92v7s" crossorigin="anonymous"></script>
+    -->
+  </body>
+</html>
