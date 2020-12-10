@@ -33,6 +33,12 @@
           </div>
 
           <div class="mb-3 form-floating">
+            <input type="url" class="form-control" id="URLToProof" aria-describedby="" placeholder="ID" />
+
+            <label for="" class="form-label">ID</label>
+          </div>
+
+          <div class="mb-3 form-floating">
             <textarea class="form-control" id="credentialsRequested" placeholder="Credentials (one per line)"
               style="height: 225px" required></textarea>
             <label for="" class="form-label">Credentials (one per line)</label>
@@ -40,11 +46,7 @@
 
 
 
-          <div class="mb-3 form-floating">
-            <input type="url" class="form-control" id="URLToProof" aria-describedby="" placeholder="ID" />
 
-            <label for="" class="form-label">ID</label>
-          </div>
 
           <button type="submit" class="btn btn-primary" onclick="generateRequestURL()" id="button">
             Submit
@@ -54,6 +56,11 @@
         <div id="spinner" class="spinner-border d-block mt-2 invisible" role="status">
           <span class="visually-hidden">Loading...</span>
         </div>
+
+        <small>
+          <div id="" class="form-text">Request link</div>
+        </small>
+
         <div class="input-group mb-3">
           <input type="url" class="form-control" placeholder="" aria-label="" aria-describedby="" id="UrlHolder"
             readonly />
