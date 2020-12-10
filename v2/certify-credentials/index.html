@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous" />
+
+  <title>Certify credentials</title>
+</head>
+
+<body>
+  <div class="bg-warning text-center"><small>Testnet</small></div>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6 offset-md-3">
+        <div class="p-5"></div>
+        <h1>Certify credentials</h1>
+        <form id="form">
+
+          <div class="mb-3 form-floating">
+            <input type="text" class="form-control" id="certifierPublicKey" aria-describedby=""
+              placeholder="Public key: Certifier" required />
+            <label for="" class="form-label">Public key: Certifier</label>
+          </div>
+
+
+          <div class="mb-3 form-floating">
+            <input type="url" class="form-control" id="URLToOwnerProof" aria-describedby="" placeholder="ID" />
+
+            <label for="" class="form-label">ID</label>
+          </div>
+
+          <div class="mb-3 form-floating">
+            <input type="text" class="form-control" id="certifierSecretKey" aria-describedby="" placeholder="Secret key"
+              required />
+            <label for="" class="form-label">Secret key</label>
+          </div>
+
+
+          <div class="mb-3 form-floating">
+            <input type="text" class="form-control" id="requesterPublicKey" aria-describedby=""
+              placeholder="Public key: Requester" required />
+            <label for="" class="form-label">Public key: Requester</label>
+          </div>
+
+
+
+          <div class="input-group mb-3">
+            <input type="url" class="form-control " placeholder="" aria-label="" aria-describedby=""
+              id="URLToOwnerProof" readonly />
+            <button class="btn btn-outline-secondary" type="button" id="URLToProof" onclick="copyToClipboard1()">
+              Copy
+            </button>
+          </div>
+
+
+
+
+
+
+
+
+
+
+          <div class="mb-3 form-floating">
+            <textarea class="form-control" id="credentialsRequested" placeholder="Credentials" style="height: 225px"
+              required readonly></textarea>
+            <label for="" class="form-label">Credentials</label>
+          </div>
+
+          <div class="mb-3 form-floating">
+            <input type="text" class="form-control" id="credToCertify" aria-describedby="" placeholder="Credential"
+              required />
+            <label for="" class="form-label">Credential</label>
+          </div>
+
+          <div class="mb-3 form-floating">
+            <input type="number" class="form-control" id="certCode" aria-describedby="" placeholder="Code"
+              oninput='precise(this)' step="0.0000001" value="0.0000001" required />
+            <label for="" class="form-label">Code</label>
+          </div>
+
+
+
+
+
+
+
+
+          <button type="submit" class="btn btn-primary" onclick="certifyCredentials()" id="certifyButton">
+            Certify
+          </button>
+
+          <button type="submit" class="btn btn-secondary" onclick="deleteRequest()" id="deleteRequestId">
+            Delete
+          </button>
+
+
+
+
+        </form>
+
+        <div id="certifySpinner" class="spinner-border d-block mt-2 invisible" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <div class="input-group mb-3">
+          <input type="url" class="form-control" placeholder="" aria-label="" aria-describedby="" id="UrlHolder"
+            readonly />
+          <button class="btn btn-outline-secondary" type="button" id="copyToClipboard" onclick="copyToClipboard()">
+            Copy
+          </button>
+        </div>
+        <div id="alert" class="alert alert-success mt-2 invisible" role="alert"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- My scripts -->
+
+  <script>
+    function precise(elem) {
+      elem.value = Number(elem.value).toFixed(7);
+    }
+
+    var form = document.getElementById("form");
+    function handleForm(event) {
+      event.preventDefault();
+    }
+    form.addEventListener("submit", handleForm);
+
+    function showSpinner() {
+      document.getElementById("spinner").classList.remove("invisible");
+    }
+
+    function hideSpinner() {
+      document.getElementById("spinner").classList.add("invisible");
+    }
+
+    function disableButton() {
+      document.getElementById("button").disabled = true;
+    }
+    function enableButton() {
+      document.getElementById("button").disabled = false;
+    }
+
+    function showAlert() {
+      document.getElementById("alert").classList.remove("invisible");
+    }
+
+    function hideAlert() {
+      document.getElementById("alert").classList.add("invisible");
+    }
+
+    function encodeQueryData(data) {
+      const ret = [];
+      for (let d in data)
+        ret.push(encodeURIComponent(d) + "=" + encodeURIComponent(data[d]));
+      return ret.join("&");
+    }
+
+
+
+    function copyToClipboard() {
+      var copyText = document.getElementById("UrlHolder");
+
+      copyText.select();
+      copyText.setSelectionRange(0, 99999);
+
+      document.execCommand("copy");
+
+      console.log("copied");
+    }
+
+    function copyToClipboard1() {
+      var copyText = document.getElementById("URLToOwnerProof");
+
+      copyText.select();
+      copyText.setSelectionRange(0, 99999);
+
+      document.execCommand("copy");
+
+      console.log("copied");
+    }
+
+
+
+
+    var myArray = [];
+
+
+
+
+    function deleteRequest() {
+      document.getElementById("credToCertify").value = ""
+
+      var credentialsRequested = document.getElementById("credentialsRequested").value
+
+      console.log(credentialsRequested)
+
+
+      var creds = credentialsRequested.split("\n")
+
+      console.log(creds)
+
+
+
+      var firstCred = creds[0]
+
+      console.log(firstCred)
+
+      document.getElementById("credToCertify").value = firstCred
+
+      creds.shift();
+
+      console.log(creds)
+
+
+
+
+
+      var credentialsRequested = creds.join(";")
+
+
+      document.getElementById("credentialsRequested").value = credentialsRequested.replace(/;/g, '\r\n')
+
+
+    }
+
+
+
+
+
+
+
+
+
+
+    function base64ToHex(str) {
+      const raw = atob(str);
+      let result = '';
+      for (let i = 0; i < raw.length; i++) {
+        const hex = raw.charCodeAt(i).toString(16);
+        result += (hex.length === 2 ? hex : '0' + hex);
+      }
+      return result.toUpperCase();
+    }
+
+
+
+
+
+    window.onload = function () {
+      const queryString = window.location.search;
+      console.log(queryString);
+
+
+      const urlParams = new URLSearchParams(queryString);
+
+
+      const certifierPublicKey = urlParams.get('certifierPublicKey')
+      console.log(certifierPublicKey);
+
+
+      const requesterPublicKey = urlParams.get('requesterPublicKey')
+      console.log(requesterPublicKey);
+
+
+      var credentialsRequested = urlParams.get('credentialsRequested')
+      console.log(credentialsRequested);
+
+      var URLToProof = urlParams.get('URLToProof')
+      console.log(URLToProof);
+
+
+
+      var creds = credentialsRequested.split(";")
+      console.log(creds)
+
+      var firstCred = creds[0]
+
+      console.log(firstCred)
+
+
+      document.getElementById("credToCertify").value = firstCred
+
+      creds.shift();
+
+      console.log(creds)
+
+
+      var credentialsRequested = creds.join(";")
+
+      document.getElementById("certifierPublicKey").value = certifierPublicKey
+      document.getElementById("requesterPublicKey").value = requesterPublicKey
+      document.getElementById("credentialsRequested").value = credentialsRequested.replace(/;/g, '\r\n')
+
+
+      // URI.withinString(URLToProof, function (url) {
+      //   URLToProof = '<a href="' + url + '" class="" target="_blank" >' + url + '</a>'
+      // })
+
+      document.getElementById("URLToProof").innerHTML = URLToProof
+
+    }
+
+
+
+
+    const getNumFruit = hashString => {
+
+      var server = new StellarSdk.Server("https://horizon-testnet.stellar.org");
+
+      try {
+        var sourceKeys = StellarSdk.Keypair.fromSecret(
+          document.getElementById("certifierSecretKey").value,
+        );
+      } catch (e) {
+        console.error(e)
+
+        document.getElementById("certifyButton").disabled = false
+
+        document.getElementById("deleteRequestId").disabled = false
+
+        document.getElementById("certifySpinner").classList.add("invisible")
+
+
+
+        var errorMessage = e;
+
+        document.getElementById("alert").innerHTML = errorMessage;
+
+        document.getElementById("alert").classList.add("alert-danger");
+
+        showAlert();
+        return
+
+      }
+
+
+      var destinationId = document.getElementById("requesterPublicKey").value;
+
+      var transaction;
+
+
+      return server
+        .loadAccount(destinationId)
+
+        .catch(function (error) {
+          if (error instanceof StellarSdk.NotFoundError) {
+            throw new Error("The destination account does not exist!");
+          } else return error;
+
+
+
+
+        })
+
+        .then(function () {
+          return server.loadAccount(sourceKeys.publicKey());
+        })
+        .then(function (sourceAccount) {
+
+          transaction = new StellarSdk.TransactionBuilder(sourceAccount, {
+            fee: StellarSdk.BASE_FEE,
+            networkPassphrase: StellarSdk.Networks.TESTNET,
+          })
+            .addOperation(
+              StellarSdk.Operation.payment({
+                destination: destinationId,
+
+                asset: StellarSdk.Asset.native(),
+                amount: document.getElementById("certCode").value,
+              }),
+            )
+
+            .addMemo(StellarSdk.Memo.hash(hashString))
+
+            .setTimeout(180)
+            .build();
+
+          transaction.sign(sourceKeys);
+
+          return server.submitTransaction(transaction);
+        })
+        .then(function (result) {
+          console.log("Success! Results:", result);
+
+          console.log("Memo:", result.memo);
+
+
+          console.log(base64ToHex(result.memo).toLowerCase());
+
+
+          deleteRequest()
+
+          document.getElementById("certifyButton").disabled = false
+
+          document.getElementById("deleteRequestId").disabled = false
+
+          document.getElementById("certifySpinner").classList.add("invisible")
+
+
+          var credSource = result.source_account
+          var credDate = result.created_at
+          var tranHash = result.hash
+
+          var certProofPlain;
+
+          URI.withinString(certProof, function (url) {
+            certProof = '<a href="' + url + '" class="alert-link text-danger" target="_blank" >' + url + '</a>'
+
+            certProofPlain = url
+          })
+
+          var credLineA, credLineAUrl;
+          URI.withinString(credLine, function (url) {
+
+            credLineA = '<a href="' + url + '" class="alert-link" target="_blank" >' + url + '</a>'
+
+            credLineAUrl = url
+          })
+
+          console.log(credLine, credLineA, credLineAUrl)
+
+
+          var credLineAd = credLine.replaceAll(credLineAUrl, credLineA)
+
+          console.log(credLine)
+
+
+
+
+          var credHash = base64ToHex(result.memo).toLowerCase()
+
+
+
+
+
+          var credEntry =
+
+            `<hr>
+                    <h5 id="credLineId" class=""><span class="text-break">${credLineAd}</span></h5>
+                    <p class="text-muted"><strong>Hash: </strong><span class="text-break">${credHash}</span></p>
+
+                    <p class="text-success"><strong>Owner: </strong><span class="text-break">${destinationId}</span></p>
+
+                    
+                    <p class="text-danger"><strong>Certifier: </strong><span class="text-break">${credSource}</p>
+                    <p class="text-danger"><strong>Certifier's ID proof: </strong><span class="text-break">${certProof}</span></p>
+                    <p class="text-muted"><strong>Date certified: </strong>${credDate}</p>
+                    <p class="text-muted"><strong>Transaction hash: </strong><span class="text-break">${tranHash}</span></p>
+                `
+
+
+
+
+
+          console.log(credEntry)
+
+
+          $("#credsList").append(credEntry);
+
+          document.getElementById("successAlert").classList.remove("d-none")
+
+
+
+          var credData = { "credLine": credLine, "certProof": certProof, "tranHash": tranHash };
+          console.log(credData)
+          myArray.push(credData)
+          var arrStr = encodeURIComponent(JSON.stringify(myArray));
+          $('#credentialsLink').attr({ href: 'https://jhrespicio.github.io/IIS/verify-credentials/?array=' + arrStr });
+
+          console.log(arrStr)
+
+          document.getElementById("credentialsLink").innerHTML = 'https://jhrespicio.github.io/IIS/verify-credentials/?array=' + arrStr
+
+
+
+
+
+          var credsLinkUrl = 'https://jhrespicio.github.io/IIS/verify-credentials/?array=' + arrStr
+          document.getElementById("credsLinkModal").innerHTML =
+
+            '<a href="' + credsLinkUrl + '" class="alert-link" target="_blank" >' + credsLinkUrl + '</a>'
+
+            + '<div id="qrcode" class="mb-2 mt-4 text-center "></div>'
+
+          new QRCode(document.getElementById("qrcode"), credsLinkUrl);
+
+        })
+        .catch(function (error) {
+          console.error("Something went wrong!", error);
+          // If the result is unknown (no response body, timeout etc.) we simply resubmit
+          // already built transaction:
+          // server.submitTransaction(transaction);
+
+          document.getElementById("certifyButton").disabled = false
+
+          document.getElementById("deleteRequestId").disabled = false
+
+
+
+
+
+
+          document.getElementById("certifySpinner").classList.add("invisible")
+
+
+
+          var errorMessage = error;
+
+          document.getElementById("alert").innerHTML = errorMessage;
+
+          document.getElementById("alert").classList.add("alert-danger");
+
+          showAlert();
+          return
+
+
+        });
+    }
+
+
+    var credLine, certProof;
+
+
+    async function certifyCredentials() {
+
+
+      document.getElementById("certifyButton").disabled = true
+
+      document.getElementById("deleteRequestId").disabled = true
+
+
+      document.getElementById("certifySpinner").classList.remove("d-none")
+
+
+      var line = document.getElementById("credToCertify").value
+
+      credLine = line
+
+      certProof = document.getElementById("URLToOwnerProof").value
+
+
+      if (!(new RegExp("([a-zA-Z0-9]+://)?([a-zA-Z0-9_]+:[a-zA-Z0-9_]+@)?([a-zA-Z0-9.-]+\\.[A-Za-z]{2,4})(:[0-9]+)?(/.*)?").test(line))) {
+        console.log(line)
+        var hash = CryptoJS.SHA256(line);
+        var lineHash = hash
+
+        console.log(lineHash)
+
+        var hashString = lineHash.toString()
+
+        console.log(hashString)
+
+        getNumFruit(hashString)
+      }
+
+      if (new RegExp("([a-zA-Z0-9]+://)?([a-zA-Z0-9_]+:[a-zA-Z0-9_]+@)?([a-zA-Z0-9.-]+\\.[A-Za-z]{2,4})(:[0-9]+)?(/.*)?").test(line)) {
+        console.log("file")
+
+
+
+        var oneURL
+        var result = URI.withinString(line, function (url) {
+          console.log(url)
+          oneURL = url
+          return url
+        })
+
+
+        console.log(oneURL)
+
+        try {
+          const config = { responseType: 'blob' };
+          const response = await axios.get(oneURL, config
+          );
+
+          console.log(response)
+          var blob = response.data
+
+
+
+          var a = new FileReader();
+          a.readAsBinaryString(blob);
+          a.onloadend = function () {
+            var hash = CryptoJS.SHA256(CryptoJS.enc.Latin1.parse(a.result));
+
+
+            console.log(hash)
+            var lineHash = hash
+            console.log(lineHash)
+            console.log(lineHash.toString())
+
+            var hashString = lineHash.toString()
+
+            console.log(hashString)
+
+            getNumFruit(hashString)
+          };
+
+
+
+
+
+        } catch (error) {
+          console.error(error);
+
+
+          document.getElementById("certifyButton").disabled = false
+
+          document.getElementById("deleteRequestId").disabled = false
+
+
+          document.getElementById("certifySpinner").classList.add("d-none")
+
+          return $('#exampleModal').modal('show')
+        }
+
+      }
+
+
+
+
+
+
+
+
+
+
+    }
+  </script>
+
+  <!-- Stellar SDK -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/stellar-sdk/7.0.0/stellar-sdk.min.js"
+    integrity="sha512-AGpfxQX0hj6dYqSjSzRs9MosacqUTDHlVT4Ym0RiCbFHIMWXKsUrGq2C4yrF04fMzq3C73VxNZNOUbqxqr0pOg=="
+    crossorigin="anonymous"></script>
+  <script>
+    console.log(StellarSdk);
+  </script>
+
+  <!-- crypto.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"
+    integrity="sha512-nOQuvD9nKirvxDdvQ9OMqe2dgapbPB7vYAMrzJihw5m+aNcf0dX53m6YxM4LgA9u8e9eg9QX+/+mPu8kCNpV2A=="
+    crossorigin="anonymous"></script>
+
+  <!-- URI.js -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/URI.js/1.19.2/URI.min.js"
+    integrity="sha512-YQAqeLT4VuAZV80lmk6OE3XtmMW3eDxUtNf2V2w16eypX21CDtelaVsFD1QLUBCQuJEenK3jPqYPmpNUasdktA=="
+    crossorigin="anonymous"></script>
+
+  <!-- axios -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.0/axios.min.js"
+    integrity="sha512-DZqqY3PiOvTP9HkjIWgjO6ouCbq+dxqWoJZ/Q+zPYNHmlnI2dQnbJ5bxAHpAMw+LXRm4D72EIRXzvcHQtE8/VQ=="
+    crossorigin="anonymous"></script>
+
+  <!-- QR code generator -->
+
+  <script src="https://cdn.jsdelivr.net/npm/davidshimjs-qrcodejs@0.0.2/qrcode.min.js"
+    integrity="sha256-xUHvBjJ4hahBW8qN9gceFBibSFUzbe9PNttUvehITzY=" crossorigin="anonymous"></script>
+
+  <!-- Optional JavaScript; choose one of the two! -->
+
+  <!-- Option 1: Bootstrap Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW"
+    crossorigin="anonymous"></script>
+
+  <!-- Option 2: Separate Popper and Bootstrap JS -->
+  <!--
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js" integrity="sha384-q2kxQ16AaE6UbzuKqyBE9/u/KzioAlnx2maXQHiDX9d4/zp8Ok3f+M7DPm+Ib6IU" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.min.js" integrity="sha384-pQQkAEnwaBkjpqZ8RU1fF1AKtTcHJwFl3pblpTlHXybJjHpMYo79HY3hIi4NKxyj" crossorigin="anonymous"></script>
+    -->
+</body>
+
+</html>
