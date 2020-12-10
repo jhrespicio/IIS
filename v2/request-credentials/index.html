@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1"
+      crossorigin="anonymous"
+    />
+
+    <title>Request credentials</title>
+  </head>
+  <body>
+    <div class="bg-info text-center"><small>Testnet</small></div>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6 offset-md-3">
+          <div class="p-5"></div>
+          <h1>Request credentials</h1>
+          <form id="form">
+            <div class="mb-3 form-floating">
+              <input
+                type="text"
+                class="form-control"
+                id="certifierPublicKey"
+                aria-describedby=""
+                placeholder="Public key: Certifier"
+                required
+              />
+              <label for="" class="form-label">Public key: Certifier</label>
+            </div>
+            <div class="mb-3 form-floating">
+              <input
+                type="text"
+                class="form-control"
+                id="requesterPublicKey"
+                aria-describedby=""
+                placeholder="Public key: Requester"
+                required
+              />
+              <label for="" class="form-label">Public key: Requester</label>
+            </div>
+
+            <div class="mb-3 form-floating">
+              <textarea
+                class="form-control"
+                id="credentialsRequested"
+                placeholder="Request credentials (one per line)"
+                style="height: 225px"
+                required
+              ></textarea>
+              <label for="" class="form-label"
+                >Request credentials (one per line)</label
+              >
+            </div>
+
+            <div class="mb-3 form-floating">
+              <input
+                type="number"
+                class="form-control"
+                id=""
+                aria-describedby=""
+                placeholder="Code (optional)"
+              />
+              <label for="" class="form-label">Code</label>
+            </div>
+
+            <div class="mb-3 form-floating">
+              <input
+                type="url"
+                class="form-control"
+                id="URLToProof"
+                aria-describedby=""
+                placeholder="ID"
+              />
+
+              <label for="" class="form-label">ID</label>
+            </div>
+
+            <button
+              type="submit"
+              class="btn btn-primary"
+              onclick="generateRequestURL()"
+              id="button"
+            >
+              Submit
+            </button>
+          </form>
+
+          <div
+            id="spinner"
+            class="spinner-border d-block mt-2 invisible"
+            role="status"
+          >
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <div class="input-group mb-3">
+            <input
+              type="url"
+              class="form-control"
+              placeholder=""
+              aria-label=""
+              aria-describedby=""
+              id="UrlHolder"
+              readonly
+            />
+            <button
+              class="btn btn-outline-secondary"
+              type="button"
+              id="copyToClipboard"
+              onclick="copyToClipboard()"
+            >
+              Copy
+            </button>
+          </div>
+          <div
+            id="alert"
+            class="alert alert-success mt-2 invisible"
+            role="alert"
+          ></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- My scripts -->
+
+    <script>
+      var form = document.getElementById("form");
+      function handleForm(event) {
+        event.preventDefault();
+      }
+      form.addEventListener("submit", handleForm);
+
+      function showSpinner() {
+        document.getElementById("spinner").classList.remove("invisible");
+      }
+
+      function hideSpinner() {
+        document.getElementById("spinner").classList.add("invisible");
+      }
+
+      function disableButton() {
+        document.getElementById("button").disabled = true;
+      }
+      function enableButton() {
+        document.getElementById("button").disabled = false;
+      }
+
+      function showAlert() {
+        document.getElementById("alert").classList.remove("invisible");
+      }
+
+      function hideAlert() {
+        document.getElementById("alert").classList.add("invisible");
+      }
+
+      function encodeQueryData(data) {
+        const ret = [];
+        for (let d in data)
+          ret.push(encodeURIComponent(d) + "=" + encodeURIComponent(data[d]));
+        return ret.join("&");
+      }
+
+      function generateRequestURL() {
+        disableButton();
+        showSpinner();
+        hideAlert();
+
+        var lines = document
+          .getElementById("credentialsRequested")
+          .value.split("\n");
+        var csvs = "";
+        for (var i = 0; i < lines.length; i++) {
+          console.log(lines[i]);
+          csvs += lines[i] + ";";
+        }
+
+        console.log(csvs);
+
+        var csvcsliced = csvs.slice(0, -1);
+
+        console.log(csvcsliced);
+
+        var certifierPublicKey = document.getElementById("certifierPublicKey")
+          .value;
+        var requesterPublicKey = document.getElementById("requesterPublicKey")
+          .value;
+        var credentialsRequested = csvcsliced;
+        var URLToProof = document.getElementById("URLToProof").value;
+
+        const data = {
+          certifierPublicKey: certifierPublicKey,
+          requesterPublicKey: requesterPublicKey,
+          credentialsRequested: credentialsRequested,
+          URLToProof: URLToProof,
+        };
+        const querystring = encodeQueryData(data);
+
+        console.log(querystring);
+
+        var requestURL = "./certify-credentials?" + querystring;
+        console.log(requestURL);
+
+        document.getElementById("UrlHolder").value = requestURL;
+
+        enableButton();
+        hideSpinner();
+        showAlert();
+      }
+
+      function copyToClipboard() {
+        var copyText = document.getElementById("UrlHolder");
+
+        copyText.select();
+        copyText.setSelectionRange(0, 99999);
+
+        document.execCommand("copy");
+
+        console.log("copied");
+      }
+    </script>
+
+    <!-- Stellar SDK -->
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/stellar-sdk/7.0.0/stellar-sdk.min.js"
+      integrity="sha512-AGpfxQX0hj6dYqSjSzRs9MosacqUTDHlVT4Ym0RiCbFHIMWXKsUrGq2C4yrF04fMzq3C73VxNZNOUbqxqr0pOg=="
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      console.log(StellarSdk);
+    </script>
+
+    <!-- crypto.js -->
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"
+      integrity="sha512-nOQuvD9nKirvxDdvQ9OMqe2dgapbPB7vYAMrzJihw5m+aNcf0dX53m6YxM4LgA9u8e9eg9QX+/+mPu8kCNpV2A=="
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- URI.js -->
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/URI.js/1.19.2/URI.min.js"
+      integrity="sha512-YQAqeLT4VuAZV80lmk6OE3XtmMW3eDxUtNf2V2w16eypX21CDtelaVsFD1QLUBCQuJEenK3jPqYPmpNUasdktA=="
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- axios -->
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.0/axios.min.js"
+      integrity="sha512-DZqqY3PiOvTP9HkjIWgjO6ouCbq+dxqWoJZ/Q+zPYNHmlnI2dQnbJ5bxAHpAMw+LXRm4D72EIRXzvcHQtE8/VQ=="
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- QR code generator -->
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/davidshimjs-qrcodejs@0.0.2/qrcode.min.js"
+      integrity="sha256-xUHvBjJ4hahBW8qN9gceFBibSFUzbe9PNttUvehITzY="
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- Optional JavaScript; choose one of the two! -->
+
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW"
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- Option 2: Separate Popper and Bootstrap JS -->
+    <!--
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js" integrity="sha384-q2kxQ16AaE6UbzuKqyBE9/u/KzioAlnx2maXQHiDX9d4/zp8Ok3f+M7DPm+Ib6IU" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.min.js" integrity="sha384-pQQkAEnwaBkjpqZ8RU1fF1AKtTcHJwFl3pblpTlHXybJjHpMYo79HY3hIi4NKxyj" crossorigin="anonymous"></script>
+    -->
+  </body>
+</html>

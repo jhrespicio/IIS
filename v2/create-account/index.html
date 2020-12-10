@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1"
+      crossorigin="anonymous"
+    />
+
+    <title>Create account</title>
+  </head>
+  <body>
+    <div class="bg-info text-center"><small>Testnet</small></div>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6 offset-md-3">
+          <div class="p-5"></div>
+          <h1>Create account</h1>
+          <button
+            id="button"
+            onclick="createAccount()"
+            type="button"
+            class="btn btn-primary"
+          >
+            Create
+          </button>
+          <div
+            id="spinner"
+            class="spinner-border d-block mt-2 invisible"
+            role="status"
+          >
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <div
+            id="alert"
+            class="alert alert-success mt-2 invisible"
+            role="alert"
+          ></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- My scripts -->
+
+    <script>
+      function showSpinner() {
+        document.getElementById("spinner").classList.remove("invisible");
+      }
+
+      function hideSpinner() {
+        document.getElementById("spinner").classList.add("invisible");
+      }
+
+      function disableButton() {
+        document.getElementById("button").disabled = true;
+      }
+      function enableButton() {
+        document.getElementById("button").disabled = false;
+      }
+
+      function showAlert() {
+        document.getElementById("alert").classList.remove("invisible");
+      }
+
+      function hideAlert() {
+        document.getElementById("alert").classList.add("invisible");
+      }
+
+      function createAccount() {
+        (async function main() {
+          const pair = StellarSdk.Keypair.random();
+
+          disableButton();
+          showSpinner();
+          hideAlert();
+
+          try {
+            const response = await fetch(
+              `https://friendbot.stellar.org?addr=${encodeURIComponent(
+                pair.publicKey()
+              )}`
+            );
+            const responseJSON = await response.json();
+            console.log("SUCCESS! You have a new account :)\n", responseJSON);
+
+            var successMessage = `<p class="text-break"><strong>Public key: </strong>${pair.publicKey()}</p>
+      <p class="text-break"><strong>Secret key: </strong>${pair.secret()}</p>`;
+
+            document.getElementById("alert").innerHTML = successMessage;
+
+            document.getElementById("alert").classList.add("alert-success");
+          } catch (e) {
+            console.error("ERROR!", e);
+
+            var errorMessage = `${e}`;
+
+            document.getElementById("alert").innerHTML = errorMessage;
+
+            document.getElementById("alert").classList.add("alert-danger");
+          }
+
+          enableButton();
+          hideSpinner();
+          showAlert();
+        })();
+      }
+    </script>
+
+    <!-- Stellar SDK -->
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/stellar-sdk/7.0.0/stellar-sdk.min.js"
+      integrity="sha512-AGpfxQX0hj6dYqSjSzRs9MosacqUTDHlVT4Ym0RiCbFHIMWXKsUrGq2C4yrF04fMzq3C73VxNZNOUbqxqr0pOg=="
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      console.log(StellarSdk);
+    </script>
+
+    <!-- crypto.js -->
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"
+      integrity="sha512-nOQuvD9nKirvxDdvQ9OMqe2dgapbPB7vYAMrzJihw5m+aNcf0dX53m6YxM4LgA9u8e9eg9QX+/+mPu8kCNpV2A=="
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- URI.js -->
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/URI.js/1.19.2/URI.min.js"
+      integrity="sha512-YQAqeLT4VuAZV80lmk6OE3XtmMW3eDxUtNf2V2w16eypX21CDtelaVsFD1QLUBCQuJEenK3jPqYPmpNUasdktA=="
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- axios -->
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.0/axios.min.js"
+      integrity="sha512-DZqqY3PiOvTP9HkjIWgjO6ouCbq+dxqWoJZ/Q+zPYNHmlnI2dQnbJ5bxAHpAMw+LXRm4D72EIRXzvcHQtE8/VQ=="
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- QR code generator -->
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/davidshimjs-qrcodejs@0.0.2/qrcode.min.js"
+      integrity="sha256-xUHvBjJ4hahBW8qN9gceFBibSFUzbe9PNttUvehITzY="
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- Optional JavaScript; choose one of the two! -->
+
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW"
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- Option 2: Separate Popper and Bootstrap JS -->
+    <!--
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js" integrity="sha384-q2kxQ16AaE6UbzuKqyBE9/u/KzioAlnx2maXQHiDX9d4/zp8Ok3f+M7DPm+Ib6IU" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.min.js" integrity="sha384-pQQkAEnwaBkjpqZ8RU1fF1AKtTcHJwFl3pblpTlHXybJjHpMYo79HY3hIi4NKxyj" crossorigin="anonymous"></script>
+    -->
+  </body>
+</html>
